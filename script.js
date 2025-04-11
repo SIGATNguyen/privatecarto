@@ -20,7 +20,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'hiroshima_detruit',
     paint: {
-      'fill-color': '#E40428',
+      'fill-color': '#B22222',
       'fill-opacity': 0.8
     }
   });
@@ -34,7 +34,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'hiroshima_moinsdetruit',
     paint: {
-      'fill-color': '#EECF68',
+      'fill-color': '#FFA500',
       'fill-opacity': 0.8
     }
   });
@@ -48,7 +48,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'hiroshima_sauve',
     paint: {
-      'fill-color': '#000000',
+      'fill-color': '#66CDAA',
       'fill-opacity': 0.8
     }
   });
@@ -63,7 +63,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'nagasaki_detruit',
     paint: {
-      'fill-color': '#E40428',
+      'fill-color': '#B22222',
       'fill-opacity': 0.8
     }
   });
@@ -77,7 +77,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'nagasaki_feu',
     paint: {
-      'fill-color': '#FF8C00',
+      'fill-color': '#FFA500',
       'fill-opacity': 0.8
     }
   });
@@ -91,7 +91,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'nagasaki_sauve',
     paint: {
-      'fill-color': '#000000',
+      'fill-color': '#3CB371',
       'fill-opacity': 0.8
     }
   });
