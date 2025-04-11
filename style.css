@@ -1,36 +1,31 @@
-/* Réinitialisation */
+/* ----- Reset & Base ----- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
-/* Palette de couleurs et variables */
 :root {
   --primary-color: #000;
   --secondary-color: #fff;
-  --accent-color: #c0392b;
+  --accent-color: #c0392b;  /* Rouge principal */
   --text-color: #000;
   --highlight-bg: #ecb464;
   --highlight-fg: #000;
 }
-
-/* Base et polices */
 html, body {
   width: 100%;
   height: 100%;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, sans-serif;
   font-size: 16px;
   background-color: var(--secondary-color);
   color: var(--text-color);
   overflow: auto;
 }
-
 body {
   cursor: none;
 }
 
-/* Curseur personnalisé (caché sur mobile) */
+/* ----- Custom Cursor ----- */
 .custom-cursor {
   position: fixed;
   width: 10px;
@@ -42,7 +37,7 @@ body {
   z-index: 1000;
 }
 
-/* Barre de progression */
+/* ----- Global Progress Bar ----- */
 #progress-bar {
   position: fixed;
   top: 0;
@@ -53,7 +48,7 @@ body {
   z-index: 100;
 }
 
-/* Carte en fond */
+/* ----- Map Container ----- */
 #map {
   position: fixed;
   top: 0;
@@ -63,7 +58,7 @@ body {
   z-index: 1;
 }
 
-/* Conteneur du scrollytelling */
+/* ----- Scroll Container ----- */
 #scroll-container {
   position: absolute;
   top: 0;
@@ -75,37 +70,39 @@ body {
   background: transparent;
   -webkit-overflow-scrolling: touch;
 }
-
 .scroller {
   position: relative;
   width: 100%;
 }
-
-/* Sections de base */
 .step {
   position: relative;
   width: 100%;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 100vh;
+  display: block;
 }
 
-/* Sections spécifiques avec hauteur ajustée */
-#hiroshima {
-  height: 150vh;
-}
-
-#nagasaki {
-  height: 180vh;
-}
-
-/* Section Intro */
+/* ----- Intro Section Redesignée ----- */
 .intro-background {
-  background: url('https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg') center/cover no-repeat;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)),
+    url('https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg');
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
   width: 100%;
-  height: 120vh;
+  height: 100vh;
   position: relative;
+  overflow: hidden;
+}
+
+.intro-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(255, 60, 60, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+  z-index: 1;
 }
 
 .intro-overlay {
@@ -115,74 +112,471 @@ body {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  color: var(--primary-color);
-  padding: 0 20px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.intro-overlay h1 {
-  font-family: 'Bebas Neue', Arial, Helvetica, sans-serif;
-  font-size: 8em;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 20px;
+.intro-content {
+  width: 80%;
+  max-width: 900px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 40px;
+  border-left: 6px solid #c0392b;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  position: relative;
+  animation: fadeInUp 1.2s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-badge {
+  position: absolute;
+  top: -25px;
+  left: -25px;
+  background: #c0392b;
   color: white;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+  padding: 10px 15px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: rotate(-5deg);
+  z-index: 3;
+}
+
+.intro-title {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  font-size: 5rem;
+  font-weight: 900;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 1.1;
+  margin: 0;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.intro-line {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.intro-line-highlight {
+  display: block;
+  color: #c0392b;
+  font-size: 130%;
+  margin: -5px 0;
+  position: relative;
+  z-index: 2;
+  font-weight: 900;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.intro-separator {
+  width: 80px;
+  height: 4px;
+  background: #c0392b;
+  margin: 25px auto;
 }
 
 .intro-meta {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 0.5em;
-  gap: 0.3em;
+  justify-content: space-between;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.meta-date, .byline {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 12px;
+  border-radius: 3px;
+  border-bottom: 2px solid rgba(192, 57, 43, 0.7);
+}
+
+.intro-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.intro-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(192, 57, 43, 0.3);
+  opacity: 0.6;
+}
+
+.intro-circle:nth-child(1) {
+  width: 300px;
+  height: 300px;
+  bottom: -100px;
+  right: 10%;
+  border-color: rgba(192, 57, 43, 0.3);
+  animation: pulse 4s infinite alternate;
+}
+
+.intro-circle:nth-child(2) {
+  width: 200px;
+  height: 200px;
+  top: 20%;
+  left: 5%;
+  border-color: rgba(255, 255, 255, 0.2);
+  animation: pulse 6s infinite alternate;
+}
+
+.intro-circle:nth-child(3) {
+  width: 150px;
+  height: 150px;
+  top: 60%;
+  left: 20%;
+  border-color: rgba(192, 57, 43, 0.2);
+  animation: pulse 5s 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* Animations au défilement */
+.intro-content.animate-in .intro-line,
+.intro-content.animate-in .intro-line-highlight {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: lineAnimation 0.8s forwards;
+}
+
+.intro-content.animate-in .intro-line:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.intro-content.animate-in .intro-line:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes lineAnimation {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----- NOUVELLE TIMELINE SECTION ----- */
+#timeline {
+  background: #f8f8f8;
+  padding: 80px 0;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-header {
   text-align: center;
-}
-
-.meta-date,
-.byline {
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
+  font-family: Arial, sans-serif;
+  font-size: 3.2em;
   font-weight: bold;
-  background: var(--highlight-bg);
-  color: var(--highlight-fg);
-  padding: 2px 5px;
-  border-radius: 2px;
+  margin-bottom: 50px;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
 }
 
-/* Conteneurs de texte */
+.timeline-header:after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background-color: var(--accent-color);
+}
+
+/* Container global de la timeline */
+.timeline {
+  position: relative;
+  margin: 80px auto;
+  padding: 0;
+  width: 90%;
+  max-width: 1200px;
+}
+
+/* Ligne verticale centrale remplacée par une image d'arrière-plan stylisée */
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 8px;
+  background: linear-gradient(to bottom, 
+    rgba(192, 57, 43, 0.8),
+    rgba(231, 76, 60, 0.8),
+    rgba(192, 57, 43, 0.8));
+  transform: translateX(-50%);
+  z-index: 0;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+/* Style de chaque élément (bloc événement) */
+.timeline-item {
+  position: relative;
+  width: 50%;
+  padding: 30px 40px;
+  box-sizing: border-box;
+  margin-bottom: 60px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.timeline-item.left {
+  left: 0;
+  text-align: right;
+  padding-right: 60px;
+}
+
+.timeline-item.right {
+  left: 50%;
+  text-align: left;
+  padding-left: 60px;
+}
+
+/* Animation au scroll */
+.timeline-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ajout d'un effet de surbrillance au survol */
+.timeline-content {
+  background: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 25px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.timeline-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* Ajout d'un bandeau coloré sur le côté */
+.timeline-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  background: var(--accent-color);
+}
+
+.timeline-item.left .timeline-content::after {
+  right: 0;
+}
+
+.timeline-item.right .timeline-content::after {
+  left: 0;
+}
+
+/* Style du titre avec un effet de soulignement */
+.timeline-title {
+  font-size: 1.4em;
+  margin: 0 0 10px;
+  color: var(--primary-color);
+  font-weight: bold;
+  position: relative;
+  padding-bottom: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.timeline-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 40px;
+  height: 3px;
+  background-color: var(--accent-color);
+}
+
+.timeline-item.left .timeline-title::after {
+  right: 0;
+}
+
+.timeline-item.right .timeline-title::after {
+  left: 0;
+}
+
+/* Mise en forme de la date en style journal */
+.timeline-date {
+  display: inline-block;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  margin-bottom: 15px;
+  font-size: 0.9em;
+  background-color: var(--accent-color);
+  padding: 5px 12px;
+  border-radius: 30px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.timeline-content p {
+  margin: 0;
+  line-height: 1.7;
+  color: #333;
+  font-size: 1.05em;
+  font-family: Arial, sans-serif;
+}
+
+/* Pastille repère sur la ligne centrale stylisée */
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  top: 40px;
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border: 5px solid var(--accent-color);
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: 0 0 0 5px rgba(192, 57, 43, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Ajout d'une animation de pulsation sur les pastilles */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(192, 57, 43, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(192, 57, 43, 0);
+  }
+}
+
+.timeline-item.visible::after {
+  animation: pulse 2s infinite;
+}
+
+/* Positionnement de la pastille différemment selon le côté */
+.timeline-item.left::after {
+  right: -18px;
+}
+
+.timeline-item.right::after {
+  left: -18px;
+}
+
+/* Connecteurs entre les points et les cartes */
+.timeline-connector {
+  content: '';
+  position: absolute;
+  top: 45px;
+  width: 30px;
+  height: 3px;
+  background-color: var(--accent-color);
+  z-index: 0;
+}
+
+.timeline-item.left .timeline-connector {
+  right: -30px;
+}
+
+.timeline-item.right .timeline-connector {
+  left: -30px;
+}
+
+/* Ajout d'une indication visuelle pour la lecture chronologique */
+.timeline::after {
+  content: '';
+  position: absolute;
+  bottom: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  z-index: 2;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* ----- Sticky Containers (Hiroshima & Nagasaki) ----- */
+.sticky-container {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;  /* Contenu à droite */
+  padding-right: 40px;
+}
+.sticky-content {
+  background: #fff;
+  padding: 20px;
+  max-width: 600px;
+  margin: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* ----- Text Container ----- */
 .text-container {
   background: #fff;
   color: #000;
   padding: 20px;
   max-width: 600px;
-  margin: auto;
+  margin: 20px;
 }
 
-.text-container.right {
-  margin-left: auto;
-  margin-right: 40px;
-}
-
-.text-container.maplibre-decalage {
-  margin-top: 600px;
-}
-
+/* ----- Titles & Paragraphs ----- */
 h1, h2 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, sans-serif;
   margin-bottom: 15px;
   font-weight: bold;
   color: var(--primary-color);
 }
-
 p {
   font-size: 1.1em;
   line-height: 1.6;
+  font-family: Arial, sans-serif;
 }
-
 .highlight {
   background: var(--highlight-bg);
   color: var(--highlight-fg);
@@ -190,7 +584,13 @@ p {
   padding: 2px 5px;
 }
 
-/* Section Infographie */
+/* ----- Sections Hiroshima & Nagasaki ----- */
+#hiroshima,
+#nagasaki {
+  min-height: 200vh;
+}
+
+/* ----- Infographie Section ----- */
 #infographie-hiroshima {
   background: #fff;
   display: flex;
@@ -198,7 +598,6 @@ p {
   justify-content: center;
   min-height: 100vh;
 }
-
 .infographie-container {
   width: 100%;
   display: flex;
@@ -206,19 +605,16 @@ p {
   justify-content: center;
   padding: 40px;
 }
-
 .infographie-text {
   flex: 0 0 40%;
   background: #fff;
   padding: 20px;
-  color: #000;
   margin-right: 20px;
+  color: #000;
 }
-
 .infographie-image {
   flex: 0 0 60%;
 }
-
 .infographie-image img {
   width: 100%;
   height: auto;
@@ -226,15 +622,14 @@ p {
   border: 1px solid #ddd;
 }
 
-/* Section Conclusion */
+/* ----- Conclusion Section ----- */
 #conclusion {
   background: #fff;
-  color: #000;
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .final-article {
   display: flex;
   flex-direction: row;
@@ -244,54 +639,47 @@ p {
   margin: auto;
   padding: 20px;
 }
-
 .final-text {
   flex: 1;
   padding-right: 20px;
 }
-
 .final-text h2 {
   font-size: 2em;
   margin-bottom: 20px;
   color: var(--primary-color);
 }
-
 .final-text p {
   font-size: 1.1em;
 }
-
 .final-image img {
   width: 350px;
   border-radius: 5px;
   border: 1px solid #ddd;
 }
 
-/* Section Footer */
+/* ----- Footer Section ----- */
 #footer {
   background: var(--highlight-bg);
   color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 10px;
+  padding: 10px;
 }
-
 .footer-content {
   text-align: center;
   max-width: 800px;
 }
-
 .footer-content p {
   font-size: 0.8em;
   margin-bottom: 5px;
 }
-
 .footer-images img {
   margin: 0 5px;
   max-width: 60px;
 }
 
-/* Boutons toggle (légendes fixes) */
+/* ----- Toggle Buttons (Legend) ----- */
 .toggle-btn {
   background: transparent;
   border: none;
@@ -302,125 +690,105 @@ p {
   align-items: center;
   margin-right: 10px;
 }
-
 .toggle-btn.inactive {
   opacity: 0.5;
 }
-
 .toggle-btn svg {
   width: 24px;
   height: 24px;
 }
-
 .toggle-label {
   margin-left: 5px;
   font-size: 0.9em;
-  color: #000;
+  color: var(--primary-color);
+  font-family: Arial, sans-serif;
 }
 
-/* Légende fixe */
+/* ----- Fixed Legend ----- */
 #fixed-legend {
   position: fixed;
   top: 10px;
   left: 10px;
   z-index: 101;
 }
-
 .fixed-legend-content {
   background: #fff;
   padding: 10px;
   border-radius: 5px;
   margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border: 1px solid #ddd;
 }
 
-/* ============================= */
-/* MEDIA QUERIES (Responsive)    */
-/* ============================= */
-
-/* Tablettes (max-width: 1024px) */
+/* ----- Responsive ----- */
 @media (max-width: 1024px) {
-  h1 { font-size: 3.5em; }
+  h1 { font-size: 3.2em; }
   h2 { font-size: 2em; }
   p { font-size: 1em; }
-  
-  .text-container.right {
-    margin-right: 20px;
-  }
-  
-  .text-container.maplibre-decalage {
-    margin-top: 400px;
-  }
-  
-  #progress-bar {
-    height: 6px;
-  }
-  
-  #fixed-legend {
-    top: 15px;
-    left: 15px;
-  }
+  .intro-title { font-size: 4rem; }
+  #progress-bar { height: 6px; }
+  #fixed-legend { top: 15px; left: 15px; }
 }
 
-/* Smartphones (max-width: 768px) */
 @media (max-width: 768px) {
-  .final-article {
-    flex-direction: column;
-    text-align: center;
-  }
+  .intro-title { font-size: 3.5rem; }
+  .intro-content { padding: 30px; width: 90%; }
+  .intro-badge { font-size: 1rem; top: -20px; left: -10px; }
   
-  .text-container {
-    max-width: 90%;
-    padding: 15px;
-    margin: 20px auto;
-  }
-  
-  .step {
-    height: auto;
-    padding: 50px 0;
-  }
-  
-  .intro-background, .intro-overlay {
-    height: 100vh;
-  }
-  
-  .intro-overlay h1 {
-    font-size: 2.5em;
-  }
-  
-  .text-container.maplibre-decalage {
-    margin-top: 200px;
-  }
-  
-  #map {
-    z-index: 0;
-  }
-  
-  #scroll-container {
-    z-index: 2;
-  }
-  
+  .step { min-height: auto; padding: 40px 0; }
+  .final-article { flex-direction: column; text-align: center; }
+  .text-container { max-width: 90%; margin: 20px auto; }
+  .intro-background, .intro-overlay { height: 100vh; }
+  #map { z-index: 0; }
+  #scroll-container { z-index: 2; }
   #fixed-legend {
-    top: auto;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
+    top: auto; bottom: 10px;
+    left: 10px; right: 10px;
     text-align: center;
   }
-  
   .fixed-legend-content {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+    display: flex; justify-content: center; flex-wrap: wrap;
   }
-  
   .toggle-btn {
     margin: 5px;
     min-width: 44px;
     min-height: 44px;
   }
+  .custom-cursor { display: none; }
   
-  /* Masquer le curseur sur mobile */
-  .custom-cursor {
-    display: none;
+  /* Timeline responsive */
+  .timeline::before { left: 20px; }
+  
+  .timeline-item {
+    width: 100%;
+    padding-left: 50px;
+    padding-right: 15px;
+    left: 0 !important;
+    text-align: left !important;
+  }
+  
+  .timeline-item.left::after,
+  .timeline-item.right::after {
+    left: 12px;
+    right: auto;
+  }
+  
+  .timeline-item.left .timeline-connector,
+  .timeline-item.right .timeline-connector {
+    left: 25px;
+    right: auto;
+    width: 20px;
+  }
+  
+  .timeline-item.left .timeline-content::after,
+  .timeline-item.right .timeline-content::after {
+    left: 0;
+    right: auto;
+  }
+  
+  .timeline-item.left .timeline-title::after,
+  .timeline-item.right .timeline-title::after {
+    left: 0;
+    right: auto;
   }
 }
