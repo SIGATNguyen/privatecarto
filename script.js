@@ -48,7 +48,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'hiroshima_sauve',
     paint: {
-      'fill-color': '#66CDAA',
+      'fill-color': '#2E8B57',
       'fill-opacity': 0.8
     }
   });
@@ -91,7 +91,7 @@ map.on('load', () => {
     type: 'fill',
     source: 'nagasaki_sauve',
     paint: {
-      'fill-color': '#3CB371',
+      'fill-color': '#2E8B57',
       'fill-opacity': 0.8
     }
   });
