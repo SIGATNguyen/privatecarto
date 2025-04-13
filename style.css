@@ -1657,3 +1657,43 @@ button:hover ~ .custom-cursor {
   --text-lighter: #999999;
   --text-white: #FFFFFF;
 }
+
+/* Modification pour permettre le scroll sur mobile */
+@media (max-width: 768px) {
+  html, body {
+    overflow: auto !important; /* Réactiver le scroll natif sur mobile */
+    height: auto !important;   /* Permettre au contenu de définir la hauteur */
+    position: static !important; /* Éviter les problèmes de positionnement fixe */
+  }
+  
+  #scroll-container {
+    position: static !important; /* Pas de position absolue sur mobile */
+    height: auto !important;     /* Hauteur basée sur le contenu */
+    overflow: visible !important; /* Montrer tout le contenu */
+  }
+  
+  .step {
+    min-height: auto !important; /* Hauteur basée sur le contenu plutôt que sur la vue */
+    padding: 50px 0 !important;  /* Espacement vertical suffisant */
+  }
+  
+  .sticky-container {
+    position: relative !important; /* Pas de position sticky sur mobile */
+    height: auto !important;
+    top: auto !important;
+  }
+  
+  #map-container {
+    position: relative !important; /* La carte devient un élément normal du flux */
+    height: 50vh !important;       /* Hauteur fixe pour la carte */
+    margin-bottom: 20px !important;
+  }
+  
+  /* Ajuster la légende pour qu'elle soit visible sur la carte mobile */
+  #fixed-legend {
+    position: absolute !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 1000 !important;
+  }
+}
