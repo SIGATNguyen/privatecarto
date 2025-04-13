@@ -1,3 +1,11 @@
+// Fonction utilitaire pour détecter les appareils mobiles
+function isMobile() {
+  return window.innerWidth <= 768;
+}
+
+// Garder une trace de la dernière largeur de fenêtre
+let lastWidth = window.innerWidth;
+
 // ======= PERFORMANCE UTILITIES =======
 function throttleRAF(callback) {
   let ticking = false;
@@ -18,6 +26,39 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
+}
+
+// ======= RESPONSIVE HANDLING =======
+function handleResize() {
+  const width = window.innerWidth;
+  const wasMobile = lastWidth <= 768;
+  const isMobileNow = width <= 768;
+  
+  // Si on passe de mobile à desktop ou vice versa, recharger la page
+  if (wasMobile !== isMobileNow) {
+    window.location.reload();
+    return;
+  }
+  
+  if (width <= 1024) {
+    const cursor = document.querySelector('.custom-cursor');
+    const cursorTrail = document.querySelector('.custom-cursor-trail');
+    
+    if (cursor) cursor.style.display = 'none';
+    if (cursorTrail) cursorTrail.style.display = 'none';
+  } else {
+    const cursor = document.querySelector('.custom-cursor');
+    const cursorTrail = document.querySelector('.custom-cursor-trail');
+    
+    if (cursor) cursor.style.display = 'block';
+    if (cursorTrail) cursorTrail.style.display = 'block';
+  }
+  
+  // Réinitialiser le scrollytelling à chaque redimensionnement significatif
+  if (scroller && Math.abs(window.innerWidth - lastWidth) > 50) {
+    scroller.resize();
+    lastWidth = window.innerWidth;
+  }
 }
 
 // ======= SYSTÈME DE CHARGEMENT =======
@@ -239,17 +280,35 @@ var currentSection = "";
 
 // Fonction utilitaire pour obtenir la section actuelle visible
 function getCurrentSection() {
-  const sections = document.querySelectorAll('.step');
-  const scrollContainer = document.getElementById('scroll-container');
-  const scrollPosition = scrollContainer.scrollTop + window.innerHeight / 2;
-  
-  for (let i = 0; i < sections.length; i++) {
-    const section = sections[i];
-    const sectionTop = section.offsetTop;
-    const sectionBottom = sectionTop + section.offsetHeight;
+  if (isMobile()) {
+    // Méthode pour mobile utilisant le scrollY de window
+    const sections = document.querySelectorAll('.step');
+    const scrollPosition = window.scrollY + window.innerHeight / 2;
     
-    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-      return section;
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      const rect = section.getBoundingClientRect();
+      const sectionTop = window.scrollY + rect.top;
+      const sectionBottom = sectionTop + rect.height;
+      
+      if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+        return section;
+      }
+    }
+  } else {
+    // Méthode originale pour desktop
+    const sections = document.querySelectorAll('.step');
+    const scrollContainer = document.getElementById('scroll-container');
+    const scrollPosition = scrollContainer.scrollTop + window.innerHeight / 2;
+    
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      const sectionTop = section.offsetTop;
+      const sectionBottom = sectionTop + section.offsetHeight;
+      
+      if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+        return section;
+      }
     }
   }
   
@@ -539,17 +598,42 @@ function resetLegendButtons(city) {
   }
 }
 
-// Initialisation du scrollytelling AMÉLIORÉE avec onStepExit
+// Initialisation du scrollytelling AMÉLIORÉE pour prendre en charge les mobiles
 function initScrollytelling() {
   try {
-    scroller.setup({
-      container: "#scroll-container",
-      step: ".step",
-      offset: 0.5,
-      debug: false
-    })
-    .onStepEnter(handleStepEnter)
-    .onStepExit(handleStepExit);
+    // Configuration différente pour mobile et desktop
+    if (isMobile()) {
+      // Sur mobile, on utilise une configuration plus simple
+      scroller.setup({
+        container: "body", // Utiliser le body comme conteneur sur mobile
+        step: ".step",
+        offset: 0.5,
+        debug: false
+      })
+      .onStepEnter(handleStepEnter)
+      .onStepExit(handleStepExit);
+      
+      // Permettre le défilement natif sur mobile
+      document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = 'auto';
+      
+      const scrollContainer = document.getElementById('scroll-container');
+      if (scrollContainer) {
+        scrollContainer.style.position = 'static';
+        scrollContainer.style.height = 'auto';
+        scrollContainer.style.overflow = 'visible';
+      }
+    } else {
+      // Configuration originale pour desktop
+      scroller.setup({
+        container: "#scroll-container",
+        step: ".step",
+        offset: 0.5,
+        debug: false
+      })
+      .onStepEnter(handleStepEnter)
+      .onStepExit(handleStepExit);
+    }
     
     // Animation optimisée de la timeline au scroll
     const timelineItems = document.querySelectorAll('.timeline-item');
@@ -574,7 +658,11 @@ function initScrollytelling() {
     initQuickNav();
     initTabs();
     initProgressBar();
-    initCustomCursor();
+    
+    // Ne pas initialiser le curseur personnalisé sur mobile
+    if (!isMobile()) {
+      initCustomCursor();
+    }
     
     // Position initiale
     setTimeout(() => {
@@ -599,7 +687,19 @@ function initQuickNav() {
       const targetSection = document.getElementById(targetId);
       
       if (targetSection) {
-        targetSection.scrollIntoView({ behavior: 'smooth' });
+        if (isMobile()) {
+          // Sur mobile, utiliser le scroll natif
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          // Sur desktop, faire défiler notre conteneur
+          const scrollContainer = document.getElementById('scroll-container');
+          if (scrollContainer) {
+            scrollContainer.scrollTo({
+              top: targetSection.offsetTop,
+              behavior: 'smooth'
+            });
+          }
+        }
       }
     });
   });
@@ -630,42 +730,69 @@ function initTabs() {
   });
 }
 
-// ======= BARRE DE PROGRESSION OPTIMISÉE =======
+// ======= BARRE DE PROGRESSION OPTIMISÉE POUR MOBILE =======
 function initProgressBar() {
   const progressBar = document.getElementById('progress-bar');
   const progressIndicator = document.getElementById('progress-indicator');
   const scrollContainer = document.getElementById('scroll-container');
   
-  if (!progressBar || !progressIndicator || !scrollContainer) return;
+  if (!progressBar || !progressIndicator) return;
   
   let lastScrollPosition = 0;
   let lastScrollTime = 0;
   
-  scrollContainer.addEventListener('scroll', function() {
+  // Fonction qui met à jour la barre de progression
+  const updateProgressBar = function() {
     // Limiter les mises à jour à 60 FPS maximum
     const now = Date.now();
     if (now - lastScrollTime < 16) return; // ~60 FPS
     
-    // Éviter les mises à jour minuscules
-    const scrollTop = scrollContainer.scrollTop;
-    if (Math.abs(scrollTop - lastScrollPosition) < 5) return;
+    let scrollProgress;
     
-    const scrollHeight = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-    const scrollProgress = (scrollTop / scrollHeight) * 100;
+    if (isMobile()) {
+      // Sur mobile, on utilise le scroll de la fenêtre
+      const scrollTop = window.scrollY;
+      if (Math.abs(scrollTop - lastScrollPosition) < 5) return;
+      
+      const scrollHeight = document.body.scrollHeight - window.innerHeight;
+      scrollProgress = (scrollTop / scrollHeight) * 100;
+      
+      lastScrollPosition = scrollTop;
+    } else {
+      // Sur desktop, on utilise le scroll du conteneur
+      if (!scrollContainer) return;
+      
+      const scrollTop = scrollContainer.scrollTop;
+      if (Math.abs(scrollTop - lastScrollPosition) < 5) return;
+      
+      const scrollHeight = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+      scrollProgress = (scrollTop / scrollHeight) * 100;
+      
+      lastScrollPosition = scrollTop;
+    }
     
     // Mettre à jour directement le style sans requestAnimationFrame
     progressBar.style.width = scrollProgress + '%';
     progressIndicator.style.left = scrollProgress + '%';
     
-    lastScrollPosition = scrollTop;
     lastScrollTime = now;
-  });
+  };
+  
+  // Sur mobile, on écoute l'événement de défilement sur la fenêtre
+  if (isMobile()) {
+    window.addEventListener('scroll', updateProgressBar);
+  } else {
+    // Sur desktop, on écoute l'événement de défilement sur le conteneur
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', updateProgressBar);
+    }
+  }
 }
 
 // ======= CURSEUR PERSONNALISÉ OPTIMISÉ =======
 function initCustomCursor() {
   // Ne pas activer sur mobile ou tablette
-  if (window.innerWidth <= 1024) return;
+  if (isMobile()) return;
   
   const cursor = document.querySelector('.custom-cursor');
   const cursorTrail = document.querySelector('.custom-cursor-trail');
@@ -701,34 +828,6 @@ function initCustomCursor() {
     });
   });
 }
-
-// ======= RESPONSIVE HANDLING =======
-function handleResize() {
-  const width = window.innerWidth;
-  
-  if (width <= 1024) {
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorTrail = document.querySelector('.custom-cursor-trail');
-    
-    if (cursor) cursor.style.display = 'none';
-    if (cursorTrail) cursorTrail.style.display = 'none';
-  } else {
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorTrail = document.querySelector('.custom-cursor-trail');
-    
-    if (cursor) cursor.style.display = 'block';
-    if (cursorTrail) cursorTrail.style.display = 'block';
-  }
-  
-  // Réinitialiser le scrollytelling à chaque redimensionnement significatif
-  if (scroller && Math.abs(window.innerWidth - lastWidth) > 50) {
-    scroller.resize();
-    lastWidth = window.innerWidth;
-  }
-}
-
-// Garder une trace de la dernière largeur de fenêtre
-let lastWidth = window.innerWidth;
 
 // ======= INITIALISATION GÉNÉRALE =======
 document.addEventListener('DOMContentLoaded', function() {
