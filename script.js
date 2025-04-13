@@ -1,1659 +1,762 @@
-/* ----- Reset & Base ----- */
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+// ======= PERFORMANCE UTILITIES =======
+function throttleRAF(callback) {
+  let ticking = false;
+  return function(...args) {
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        callback.apply(this, args);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  };
 }
 
-:root {
-  /* Palette de couleurs principale */
-  --primary: #AF0D1D;         /* Rouge principal - couleur de l'explosion */
-  --primary-light: #D73C4E;   /* Rouge clair */
-  --primary-dark: #7D0914;    /* Rouge foncé */
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// ======= SYSTÈME DE CHARGEMENT =======
+document.addEventListener('DOMContentLoaded', function() {
+  const loadingIndicator = document.getElementById('loading-indicator');
   
-  /* Couleurs secondaires */
-  --secondary: #1A1A1A;       /* Gris très foncé - presque noir */
-  --secondary-light: #333;    /* Gris foncé */
-  --secondary-lighter: #666;  /* Gris moyen */
+  // Force la fermeture du loader après 3 secondes maximum (optimisé de 5s à 3s)
+  setTimeout(() => {
+    if (loadingIndicator) {
+      loadingIndicator.classList.add('hidden');
+      startIntroAnimations();
+    }
+  }, 3000);
+});
+
+// ======= INITIALISATION MAPLIBRE =======
+var map = new maplibregl.Map({
+  container: 'map',
+  style: 'https://basemaps.cartocdn.com/gl/positron-nolabels-gl-style/style.json',
+  center: [132.49859, 34.38477],
+  zoom: 12.5,
+  pitch: 0,
+  bearing: 0,
+  fadeDuration: 0,
+  attributionControl: false,
+  // Optimisations pour les performances
+  antialias: false,
+  preserveDrawingBuffer: false
+});
+
+// Gestion des erreurs de la carte
+map.on('error', function(e) {
+  console.error('Erreur MapLibre:', e);
+  document.getElementById('loading-indicator').classList.add('hidden');
+  startIntroAnimations();
+});
+
+// Configuration des couches cartographiques
+map.on('load', function() {
+  console.log("Carte chargée avec succès");
   
-  /* Couleurs de fond */
-  --background: #FFFFFF;      /* Blanc */
-  --background-alt: #F6F6F6;  /* Gris très clair */
-  
-  /* Couleurs de texte */
-  --text: #1A1A1A;            /* Noir pour le texte principal */
-  --text-light: #666;         /* Gris pour le texte secondaire */
-  --text-lighter: #999;       /* Gris clair pour les légendes */
-  --text-white: #FFF;         /* Blanc pour le texte sur fond sombre */
-  
-  /* Couleurs fonctionnelles */
-  --success: #2E8B57;         /* Vert pour les zones sauvées */
-  --warning: #FFA500;         /* Orange pour les zones endommagées */
-  --danger: #B22222;          /* Rouge foncé pour les zones détruites */
-  
-  /* Dimensions */
-  --header-height: 60px;
-  --footer-height: 300px;
-  --sidebar-width: 300px;
-  
-  /* Z-index layers */
-  --z-back: 1;
-  --z-normal: 2;
-  --z-front: 3;
-  --z-overlay: 10;
-  --z-modal: 20;
-  --z-extreme: 100;
-  
-  /* Transitions */
-  --transition-fast: 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-normal: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --transition-slow: 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.2);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.16), 0 6px 10px rgba(0,0,0,0.1);
-  --shadow-xl: 0 15px 35px rgba(0,0,0,0.18), 0 10px 25px rgba(0,0,0,0.1);
-}
-
-html, body {
-  width: 100%;
-  height: 100%;
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  background-color: var(--background);
-  color: var(--text);
-  overflow: hidden;
-  /* Désactive le scroll natif pour utiliser notre système custom */
-  overscroll-behavior: none; 
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  cursor: none; /* Cache le curseur par défaut */
-  position: relative;
-}
-
-/* ----- Fonts & Typography ----- */
-h1, h2, h3, h4, h5, h6 {
-  font-family: Arial, sans-serif;
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: 0.5em;
-}
-
-h1 {
-  font-size: 3.5rem;
-}
-
-h2 {
-  font-size: 2.5rem;
-}
-
-h3 {
-  font-size: 1.8rem;
-}
-
-p {
-  margin-bottom: 1em;
-  line-height: 1.6;
-}
-
-/* ----- Correction pour les liens ----- */
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* ----- Loader ----- */
-#loading-indicator {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--secondary);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: var(--z-modal);
-  opacity: 1;
-  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
-}
-
-#loading-indicator.hidden {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.loading-circle {
-  width: 60px;
-  height: 60px;
-  border: 6px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  border-top-color: var(--primary);
-  animation: spin 1s ease-in-out infinite;
-  margin-bottom: 20px;
-}
-
-#loading-indicator p {
-  color: var(--text-white);
-  font-size: 1rem;
-  letter-spacing: 1px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ----- Custom Cursor with Trail ----- */
-.custom-cursor {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background: var(--primary);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: var(--z-extreme);
-  mix-blend-mode: exclusion;
-  will-change: transform;
-  transition: width 0.2s, height 0.2s;
-}
-
-.custom-cursor-trail {
-  position: fixed;
-  width: 24px;
-  height: 24px;
-  background: rgba(175, 13, 29, 0.2);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: calc(var(--z-extreme) - 1);
-  transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.3s;
-  will-change: transform;
-}
-
-/* Effet d'agrandissement sur les éléments interactifs */
-a:hover ~ .custom-cursor,
-button:hover ~ .custom-cursor {
-  width: 20px;
-  height: 20px;
-  background: var(--primary);
-}
-
-/* ----- Global Progress Bar ----- */
-#progress-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  z-index: var(--z-overlay);
-}
-
-#progress-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background: var(--primary);
-  transition: width 0.05s linear;
-}
-
-#progress-indicator {
-  position: absolute;
-  top: -2px;
-  right: 0;
-  width: 12px;
-  height: 9px;
-  background: var(--primary);
-  border-radius: 6px;
-  transform: translateX(0);
-  box-shadow: 0 0 8px rgba(175, 13, 29, 0.8);
-}
-
-/* ----- Quick Navigation Menu ----- */
-#quick-nav {
-  position: fixed !important;
-  top: 50% !important;
-  right: 20px !important;
-  transform: translateY(-50%) !important;
-  z-index: var(--z-overlay) !important;
-}
-
-#quick-nav ul {
-  list-style: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 15px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-#quick-nav a {
-  display: block !important;
-  width: 12px !important;
-  height: 12px !important;
-  border-radius: 50% !important;
-  background: rgba(0, 0, 0, 0.2) !important;
-  transition: all 0.3s ease !important;
-  position: relative !important;
-  color: transparent !important;
-  text-decoration: none !important;
-  overflow: hidden !important;
-}
-
-#quick-nav a::before {
-  content: attr(href);
-  position: absolute;
-  right: 25px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: var(--secondary);
-  color: white;
-  padding: 5px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-#quick-nav a:hover::before {
-  opacity: 1;
-}
-
-#quick-nav a.active,
-#quick-nav a:hover {
-  background: var(--primary) !important;
-  transform: scale(1.3) !important;
-}
-
-/* ----- Map Container ----- */
-#map-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: var(--z-back);
-  overflow: hidden;
-}
-
-#map {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.map-vignette {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* ----- Scroll Container ----- */
-#scroll-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: var(--z-normal);
-  overflow-y: scroll;
-  overflow-x: hidden;
-  background: transparent;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-
-#scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-.scroller {
-  position: relative;
-  width: 100%;
-}
-
-.step {
-  position: relative;
-  width: 100%;
-  min-height: 100vh;
-  display: block;
-}
-
-/* ----- Section Badge ----- */
-.section-badge {
-  display: inline-block;
-  background: var(--primary);
-  color: white;
-  font-weight: bold;
-  font-size: 0.9rem;
-  padding: 6px 12px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.sticky-content:hover .section-badge {
-  transform: translateY(-3px);
-}
-
-/* ----- Intro Section ----- */
-.intro-background {
-  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)),
-    url('https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg');
-  background-position: center;
-  background-size: cover;
-  width: 100%;
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
-}
-
-.intro-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, rgba(175, 13, 29, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-  z-index: 1;
-}
-
-.intro-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.intro-content {
-  width: 80%;
-  max-width: 900px;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 50px;
-  border-left: 6px solid var(--primary);
-  box-shadow: var(--shadow-xl);
-  position: relative;
-  animation: fadeInUp 1.2s ease-out;
-  transform: translateY(0);
-  transition: transform 0.4s ease-out;
-}
-
-.intro-content:hover {
-  transform: translateY(-5px);
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.intro-badge {
-  position: absolute;
-  top: -25px;
-  left: -25px;
-  background: var(--primary);
-  color: white;
-  font-weight: bold;
-  font-size: 1.2rem;
-  padding: 10px 15px;
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  transform: rotate(-5deg);
-  z-index: 3;
-}
-
-.pulse-effect {
-  animation: pulse-badge 3s infinite alternate;
-}
-
-@keyframes pulse-badge {
-  0% {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  }
-  100% {
-    box-shadow: 0 4px 20px rgba(175, 13, 29, 0.8);
-  }
-}
-
-.intro-title {
-  text-align: center;
-  font-size: 5rem;
-  font-weight: 900;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  line-height: 1.1;
-  margin: 0;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.intro-line {
-  display: block;
-  margin-bottom: 5px;
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-}
-
-.intro-content:hover .intro-line {
-  transform: translateY(-3px);
-}
-
-.intro-line-highlight {
-  display: block;
-  color: var(--primary);
-  font-size: 130%;
-  margin: -5px 0;
-  position: relative;
-  z-index: 2;
-  font-weight: 900;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
-}
-
-.intro-separator {
-  width: 80px;
-  height: 4px;
-  background: var(--primary);
-  margin: 25px auto;
-}
-
-.intro-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  font-size: 0.9rem;
-  letter-spacing: 1px;
-  max-width: 550px;
-  margin: 25px auto 0;
-}
-
-.meta-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.meta-date, .byline {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 6px 12px;
-  border-radius: 3px;
-  border-bottom: 2px solid rgba(175, 13, 29, 0.7);
-}
-
-.scroll-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
-/* ----- Timeline Section ----- */
-#timeline {
-  background-color: var(--background-alt);
-  padding: 80px 0 120px;
-  position: relative;
-  overflow: hidden;
-}
-
-.timeline-header {
-  text-align: center;
-  font-size: 3.2em;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: var(--secondary);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  position: relative;
-}
-
-.timeline-subtitle {
-  text-align: center;
-  color: var(--text-light);
-  font-size: 1.2rem;
-  max-width: 600px;
-  margin: 0 auto 50px;
-}
-
-/* Container global de la timeline */
-.timeline {
-  position: relative;
-  margin: 80px auto;
-  padding: 0;
-  width: 90%;
-  max-width: 1200px;
-}
-
-/* Ligne verticale centrale */
-.timeline::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 6px;
-  background: linear-gradient(to bottom, 
-    var(--primary-dark),
-    var(--primary),
-    var(--primary-light),
-    var(--primary));
-  transform: translateX(-50%);
-  z-index: 0;
-  border-radius: 3px;
-  box-shadow: var(--shadow-md);
-}
-
-/* Style de chaque élément (bloc événement) */
-.timeline-item {
-  position: relative;
-  width: 50%;
-  padding: 30px 40px;
-  box-sizing: border-box;
-  margin-bottom: 60px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.timeline-item.left {
-  left: 0;
-  text-align: right;
-  padding-right: 60px;
-}
-
-.timeline-item.right {
-  left: 50%;
-  text-align: left;
-  padding-left: 60px;
-}
-
-/* Animation au scroll */
-.timeline-item.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Ajout d'un effet de surbrillance au survol */
-.timeline-content {
-  background: white;
-  border: none;
-  border-radius: 8px;
-  padding: 30px;
-  position: relative;
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
-  overflow: hidden;
-  transform: translateY(0);
-}
-
-.timeline-content:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Ajout d'un bandeau coloré sur le côté */
-.timeline-content::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  width: 5px;
-  height: 100%;
-  background: var(--primary);
-}
-
-.timeline-item.left .timeline-content::after {
-  right: 0;
-}
-
-.timeline-item.right .timeline-content::after {
-  left: 0;
-}
-
-/* Style du titre avec un effet de soulignement */
-.timeline-title {
-  font-size: 1.4em;
-  margin: 0 0 10px;
-  color: var(--secondary);
-  font-weight: bold;
-  position: relative;
-  padding-bottom: 10px;
-}
-
-.timeline-title::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  width: 40px;
-  height: 3px;
-  background-color: var(--primary);
-}
-
-.timeline-item.left .timeline-title::after {
-  right: 0;
-}
-
-.timeline-item.right .timeline-title::after {
-  left: 0;
-}
-
-/* Mise en forme de la date en style journal */
-.timeline-date {
-  display: inline-block;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 15px;
-  font-size: 0.9em;
-  background-color: var(--primary);
-  padding: 5px 12px;
-  border-radius: 30px;
-  letter-spacing: 0.5px;
-  box-shadow: var(--shadow-sm);
-}
-
-.timeline-content p {
-  margin: 0;
-  line-height: 1.7;
-  color: var(--text);
-  font-size: 1.05em;
-}
-
-/* Pastille repère sur la ligne centrale stylisée */
-.timeline-item::after {
-  content: '';
-  position: absolute;
-  top: 40px;
-  width: 26px;
-  height: 26px;
-  background: white;
-  border: 5px solid var(--primary);
-  border-radius: 50%;
-  z-index: 1;
-  box-shadow: 0 0 0 5px rgba(175, 13, 29, 0.3);
-  transition: all 0.3s ease;
-}
-
-/* Ajout d'une animation de pulsation sur les pastilles */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(175, 13, 29, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(175, 13, 29, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(175, 13, 29, 0);
-  }
-}
-
-.timeline-item.visible::after {
-  animation: pulse 2s infinite;
-}
-
-/* Positionnement de la pastille différemment selon le côté */
-.timeline-item.left::after {
-  right: -18px;
-}
-
-.timeline-item.right::after {
-  left: -18px;
-}
-
-/* Connecteurs entre les points et les cartes */
-.timeline-connector {
-  content: '';
-  position: absolute;
-  top: 45px;
-  width: 30px;
-  height: 3px;
-  background-color: var(--primary);
-  z-index: 0;
-}
-
-.timeline-item.left .timeline-connector {
-  right: -30px;
-}
-
-.timeline-item.right .timeline-connector {
-  left: -30px;
-}
-
-/* ----- Sticky Container (Hiroshima & Nagasaki) ----- */
-.sticky-container {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 40px;
-  z-index: var(--z-normal);
-}
-
-.sticky-content {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 35px;
-  max-width: 550px;
-  margin: 20px;
-  box-shadow: var(--shadow-lg);
-  border-radius: 8px;
-  border-left: 5px solid var(--primary);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.sticky-content:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-xl);
-}
-
-/* ----- Text Container & Content ----- */
-.text-container {
-  background: white;
-  color: var(--text);
-  padding: 30px;
-}
-
-.text-container h2 {
-  font-size: 2.2rem;
-  margin-bottom: 20px;
-  color: var(--secondary);
-}
-
-.intro-paragraph {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin-bottom: 1.5em;
-  color: var(--secondary);
-}
-
-/* Points d'impact */
-.impact-legend {
-  list-style: none;
-  margin: 20px 0;
-}
-
-.impact-legend li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.impact-dot {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  margin-right: 10px;
-  flex-shrink: 0;
-}
-
-.impact-dot.destruction {
-  background: var(--danger);
-}
-
-.impact-dot.partial, .impact-dot.fire {
-  background: var(--warning);
-}
-
-.impact-dot.spared {
-  background: var(--success);
-}
-
-/* Conteneur de statistiques */
-.stat-container {
-  display: flex;
-  gap: 20px;
-  margin: 30px 0;
-}
-
-.stat-item {
-  flex: 1;
-  background: var(--background-alt);
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  border-bottom: 3px solid var(--primary);
-  transition: transform 0.2s ease;
-}
-
-.stat-item:hover {
-  transform: translateY(-3px);
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--primary);
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--text-light);
-}
-
-/* Prompt d'exploration */
-.explore-prompt {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 30px;
-  padding: 15px;
-  background: var(--secondary-light);
-  color: white;
-  border-radius: 8px;
-  animation: glow 3s infinite alternate;
-}
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 5px rgba(175, 13, 29, 0.3);
-  }
-  100% {
-    box-shadow: 0 0 15px rgba(175, 13, 29, 0.6);
-  }
-}
-
-/* ----- Sections Hiroshima & Nagasaki ----- */
-#hiroshima,
-#nagasaki {
-  min-height: 200vh;
-}
-
-/* ----- Infographie Section ----- */
-#infographie-hiroshima {
-  background: var(--background);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 60px 0;
-}
-
-.infographie-container {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 0 40px;
-  gap: 40px;
-}
-
-.infographie-text {
-  flex: 0 0 40%;
-  background: white;
-  padding: 30px;
-  color: var(--text);
-  box-shadow: var(--shadow-md);
-  border-radius: 8px;
-  transition: transform 0.3s ease;
-}
-
-.infographie-text:hover {
-  transform: translateY(-5px);
-}
-
-.infographie-tabs {
-  display: flex;
-  margin: 25px 0 15px;
-  border-bottom: 2px solid var(--background-alt);
-}
-
-.tab-btn {
-  padding: 12px 20px;
-  background: none;
-  border: none;
-  font-weight: bold;
-  color: var(--text-light);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.tab-btn:hover {
-  color: var(--primary);
-}
-
-.tab-btn.active {
-  color: var(--primary);
-}
-
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--primary);
-}
-
-.tab-content {
-  display: none;
-  padding: 20px 0;
-}
-
-.tab-content.active {
-  display: block;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.data-list {
-  list-style: none;
-}
-
-.data-list li {
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--background-alt);
-}
-
-.data-list li:last-child {
-  border-bottom: none;
-}
-
-.data-list li strong {
-  color: var(--secondary);
-}
-
-/* Partie interactive de l'infographie */
-.infographie-image {
-  flex: 0 0 60%;
-}
-
-.infographie-interactive {
-  background: var(--secondary-light);
-  padding: 30px;
-  border-radius: 8px;
-  color: white;
-  height: 500px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-
-.bomb-comparison {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  height: 220px;
-  margin-bottom: 20px;
-}
-
-.bomb {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.bomb:hover {
-  transform: translateY(-10px);
-}
-
-.bomb-name {
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
-.bomb-shape {
-  width: 100px;
-  height: 160px;
-  background: var(--primary);
-  position: relative;
-  margin-bottom: 15px;
-}
-
-.little-boy .bomb-shape {
-  width: 70px;
-  border-radius: 20px;
-}
-
-.fat-man .bomb-shape {
-  width: 110px;
-  height: 140px;
-  border-radius: 50%;
-}
-
-.bomb-data {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.blast-radius-comparison {
-  position: relative;
-  height: 240px;
-  width: 100%;
-}
-
-.radius-circle {
-  position: absolute;
-  border: 2px dashed white;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.radius-circle.hiroshima {
-  top: 50%;
-  left: 40%;
-  width: 180px;
-  height: 180px;
-  border-color: rgba(255, 255, 255, 0.8);
-  animation: pulse-radius 3s infinite alternate;
-}
-
-.radius-circle.nagasaki {
-  top: 50%;
-  left: 60%;
-  width: 220px;
-  height: 220px;
-  border-color: rgba(255, 255, 255, 0.6);
-  animation: pulse-radius 3s 0.5s infinite alternate;
-}
-
-@keyframes pulse-radius {
-  0% {
-    box-shadow: 0 0 0 0 rgba(175, 13, 29, 0.4);
-    border-color: rgba(255, 255, 255, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 20px 10px rgba(175, 13, 29, 0.2);
-    border-color: rgba(255, 255, 255, 1);
-  }
-}
-
-.scale-indicator {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
-
-.scale-line {
-  width: 100px;
-  height: 3px;
-  background: white;
-  margin: 0 auto 5px;
-}
-
-.scale-label {
-  font-size: 0.9rem;
-}
-
-/* ----- Conclusion Section ----- */
-#conclusion {
-  background: white;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 80px 0;
-}
-
-.final-article {
-  display: flex;
-  align-items: flex-start;
-  max-width: 1200px;
-  width: 90%;
-  margin: auto;
-  gap: 40px;
-}
-
-.final-text {
-  flex: 1;
-  padding-right: 20px;
-}
-
-.final-text h2 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  color: var(--secondary);
-}
-
-.final-text p {
-  font-size: 1.1em;
-  margin-bottom: 20px;
-}
-
-.final-quote {
-  margin: 30px 0;
-  padding: 20px 30px;
-  font-style: italic;
-  font-size: 1.3rem;
-  border-left: 4px solid var(--primary);
-  background: var(--background-alt);
-  position: relative;
-}
-
-.final-quote::before {
-  content: '"';
-  position: absolute;
-  top: 0;
-  left: 10px;
-  font-size: 4rem;
-  color: var(--primary);
-  opacity: 0.2;
-  line-height: 1;
-}
-
-.final-quote cite {
-  display: block;
-  margin-top: 10px;
-  font-size: 1rem;
-  text-align: right;
-}
-
-.final-image-container {
-  flex: 0 0 40%;
-  position: relative;
-  overflow: hidden;
-  border-radius: 8px;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.3s ease;
-}
-
-.final-image-container:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-xl);
-}
-
-.final-image {
-  width: 100%;
-  display: block;
-  transition: transform 0.5s ease;
-}
-
-.final-image-container:hover .final-image {
-  transform: scale(1.05);
-}
-
-.final-image-container figcaption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  font-size: 0.9rem;
-}
-
-/* ----- Footer Section ----- */
-#footer {
-  background: var(--secondary);
-  color: white;
-  padding: 60px 0;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-.footer-logo {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.footer-logo img {
-  max-width: 180px;
-  filter: brightness(0) invert(1);
-}
-
-.footer-info {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 30px;
-  margin-bottom: 40px;
-}
-
-.footer-section {
-  flex: 1;
-  min-width: 200px;
-}
-
-.footer-section h3 {
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-  color: var(--primary);
-  position: relative;
-  padding-bottom: 10px;
-}
-
-.footer-section h3::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 40px;
-  height: 3px;
-  background-color: var(--primary);
-}
-
-.footer-section p {
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-.portfolio-link {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.portfolio-button {
-  display: inline-block;
-  background: var(--primary);
-  color: white;
-  text-decoration: none;
-  padding: 12px 25px;
-  border-radius: 30px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
-}
-
-.portfolio-button:hover {
-  background: var(--primary-dark);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* ----- Legend ----- */
-#fixed-legend {
-  position: fixed !important;
-  top: 20px !important;
-  left: 20px !important;
-  z-index: var(--z-overlay) !important;
-}
-
-.fixed-legend-content {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  box-shadow: var(--shadow-md);
-  border: none;
-  border-left: 4px solid var(--primary);
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-  animation: slideIn 0.5s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.fixed-legend-content:hover {
-  transform: translateY(-3px);
-}
-
-.legend-title {
-  font-size: 1rem;
-  margin-bottom: 12px;
-  color: var(--secondary);
-}
-
-.toggle-btn {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #eee;
-  border-radius: 30px;
-  cursor: pointer;
-  padding: 8px 12px;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  margin-right: 10px;
-  margin-bottom: 8px;
-}
-
-.toggle-btn:hover {
-  background: white;
-  box-shadow: var(--shadow-sm);
-  transform: translateY(-2px);
-}
-
-.toggle-btn.inactive {
-  opacity: 0.5;
-}
-
-.toggle-btn svg {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-}
-
-.toggle-label {
-  font-size: 0.85em;
-  color: var(--text);
-}
-
-/* ----- Responsive Design ----- */
-@media (max-width: 1200px) {
-  .intro-title {
-    font-size: 4rem;
+  // Masquer le loader une fois la carte chargée
+  const loadingIndicator = document.getElementById('loading-indicator');
+  if (loadingIndicator) {
+    loadingIndicator.classList.add('hidden');
   }
   
-  .intro-content {
-    width: 90%;
-    padding: 40px;
+  // Démarrer les animations
+  startIntroAnimations();
+  
+  // Fonction pour ajouter des couches - toutes les couches sont créées avec visibilité 'visible'
+  function addMapLayer(id, url, color, opacity = 0.8) {
+    try {
+      map.addSource(id, {
+        type: 'geojson',
+        data: url
+      });
+      
+      map.addLayer({
+        id: id + '_layer',
+        type: 'fill',
+        source: id,
+        paint: {
+          'fill-color': color,
+          'fill-opacity': opacity,
+          'fill-outline-color': 'rgba(0, 0, 0, 0.2)'
+        },
+        layout: {
+          // Par défaut les couches sont créées visibles
+          'visibility': 'visible'
+        }
+      });
+      
+      console.log(`Couche ${id} ajoutée avec succès`);
+    } catch (error) {
+      console.error(`Erreur lors de l'ajout de la couche ${id}:`, error);
+    }
   }
   
-  .infographie-container {
-    flex-direction: column;
-    align-items: center;
+  // --- Hiroshima ---
+  addMapLayer('hiroshima_detruit', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Hiroshima/hiro_total_detruit.geojson', 
+    '#B22222');
+  
+  addMapLayer('hiroshima_moinsdetruit', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Hiroshima/hiro_part_detruit_v2.geojson', 
+    '#FFA500');
+  
+  addMapLayer('hiroshima_sauve', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Hiroshima/sauve.geojson', 
+    '#2E8B57');
+
+  // --- Nagasaki ---
+  addMapLayer('nagasaki_detruit', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Nagasaki/naga_detruit_bombe.geojson', 
+    '#B22222');
+  
+  addMapLayer('nagasaki_feu', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Nagasaki/naga_feu.geojson', 
+    '#FFA500');
+  
+  addMapLayer('nagasaki_sauve', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Nagasaki/naga_sauve.geojson', 
+    '#2E8B57');
+
+  // Par défaut, on cache toutes les couches jusqu'à ce qu'on arrive à la section correspondante
+  const allLayers = [
+    'hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer',
+    'nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer'
+  ];
+  
+  allLayers.forEach(layer => {
+    if (map.getLayer(layer)) {
+      map.setLayoutProperty(layer, 'visibility', 'none');
+    }
+  });
+
+  // Configuration des boutons toggle pour la légende
+  setupAllToggles();
+  
+  // Initialisation selon la section courante avec un délai réduit
+  setTimeout(() => {
+    const currentSection = getCurrentSection();
+    if (currentSection) {
+      console.log("Section initiale détectée:", currentSection.id);
+      handleStepEnter({ element: currentSection });
+    }
+  }, 500); // Réduit de 1000ms à 500ms pour améliorer la réactivité
+});
+
+// ======= LÉGENDE INTERACTIVE =======
+// Fonction pour configurer tous les toggles
+function setupAllToggles() {
+  // Hiroshima toggles
+  setupToggle('toggle-destroyed-fixed');
+  setupToggle('toggle-lessdestroyed-fixed');
+  setupToggle('toggle-sauve-fixed');
+  
+  // Nagasaki toggles
+  setupToggle('toggle-naga-detruit-fixed');
+  setupToggle('toggle-naga-feu-fixed');
+  setupToggle('toggle-naga-sauve-fixed');
+  
+  console.log("Tous les boutons de légende ont été configurés");
+}
+
+// Fonction améliorée pour que la légende fonctionne dès le premier clic
+function setupToggle(btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) {
+    console.warn(`Bouton ${btnId} non trouvé`);
+    return;
   }
   
-  .infographie-text,
-  .infographie-image {
-    flex: 0 0 100%;
-    max-width: 700px;
-    width: 100%;
-    margin-bottom: 30px;
+  // Log pour confirmer que le bouton est trouvé
+  console.log(`Bouton de légende configuré: ${btnId}`);
+  
+  btn.addEventListener('click', function() {
+    const layer = btn.getAttribute('data-layer');
+    const isActive = btn.classList.contains('active');
+    
+    // Log pour déboguer
+    console.log(`Toggle clicked: ${btnId} for layer ${layer}, currently active: ${isActive}`);
+    
+    try {
+      if (map.getLayer(layer)) {
+        // Basculer la visibilité
+        const newVisibility = isActive ? 'none' : 'visible';
+        map.setLayoutProperty(layer, 'visibility', newVisibility);
+        
+        // Mettre à jour les classes CSS
+        if (isActive) {
+          btn.classList.remove('active');
+          btn.classList.add('inactive');
+          btn.style.opacity = '0.5';
+        } else {
+          btn.classList.add('active');
+          btn.classList.remove('inactive');
+          btn.style.opacity = '1';
+        }
+        
+        console.log(`Visibilité de ${layer} définie à ${newVisibility}`);
+      } else {
+        console.warn(`Couche ${layer} non trouvée`);
+      }
+    } catch (error) {
+      console.error(`Erreur lors du toggle de ${layer}:`, error);
+    }
+  });
+}
+
+// ======= ANIMATION DE L'INTRO =======
+function startIntroAnimations() {
+  console.log("Démarrage des animations");
+  
+  // Animation des éléments fade-in
+  const fadeElements = document.querySelectorAll('.fade-in');
+  
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.2 });
+  
+  fadeElements.forEach(elem => {
+    fadeObserver.observe(elem);
+  });
+  
+  // Initialiser le scrollytelling
+  initScrollytelling();
+}
+
+// ======= SCROLLYTELLING =======
+var scroller = scrollama();
+// Garder une trace de la section actuelle pour gérer les légendes
+var currentSection = "";
+
+// Fonction utilitaire pour obtenir la section actuelle visible
+function getCurrentSection() {
+  const sections = document.querySelectorAll('.step');
+  const scrollContainer = document.getElementById('scroll-container');
+  const scrollPosition = scrollContainer.scrollTop + window.innerHeight / 2;
+  
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    const sectionTop = section.offsetTop;
+    const sectionBottom = sectionTop + section.offsetHeight;
+    
+    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+      return section;
+    }
   }
   
-  .sticky-container {
-    justify-content: center;
-    padding-right: 0;
+  return null;
+}
+
+// Fonction utilitaire pour trouver la section suivante
+function getNextSection(currentId) {
+  const sections = document.querySelectorAll('.step');
+  let foundCurrent = false;
+  
+  for (let i = 0; i < sections.length; i++) {
+    if (foundCurrent) {
+      return sections[i].id;
+    }
+    if (sections[i].id === currentId) {
+      foundCurrent = true;
+    }
   }
   
-  .sticky-content {
-    max-width: 90%;
+  return null;
+}
+
+// Fonction utilitaire pour trouver la section précédente
+function getPreviousSection(currentId) {
+  const sections = document.querySelectorAll('.step');
+  
+  for (let i = 1; i < sections.length; i++) {
+    if (sections[i].id === currentId) {
+      return sections[i-1].id;
+    }
   }
   
-  .final-article {
-    flex-direction: column;
-  }
+  return null;
+}
+
+// Gestion des sections AMÉLIORÉE - affichage immédiat des couches
+function handleStepEnter(response) {
+  const id = response.element.id;
+  console.log(`Navigation vers la section: ${id}`);
   
-  .final-text {
-    margin-bottom: 30px;
-    padding-right: 0;
-  }
+  // Mémoriser la section actuelle
+  currentSection = id;
   
-  .final-image-container {
-    max-width: 100%;
+  // Mettre à jour la navigation
+  document.querySelectorAll('#quick-nav a').forEach(link => {
+    link.classList.remove('active');
+  });
+  
+  const activeNavLink = document.querySelector(`#quick-nav a[href="#${id}"]`);
+  if (activeNavLink) activeNavLink.classList.add('active');
+  
+  // Masquer les légendes par défaut
+  const legendHiroshima = document.getElementById("legend-hiroshima");
+  const legendNagasaki = document.getElementById("legend-nagasaki");
+  
+  if (legendHiroshima) legendHiroshima.style.display = "none";
+  if (legendNagasaki) legendNagasaki.style.display = "none";
+  
+  // Configuration spécifique par section avec couches visibles par défaut
+  try {
+    switch(id) {
+      case "intro":
+        map.flyTo({ center: [132.49859, 34.38477], zoom: 12.5, duration: 1500 });
+        hideAllLayers();
+        break;
+      
+      case "timeline":
+        map.flyTo({ center: [135.5, 35.0], zoom: 6, duration: 1500 });
+        hideAllLayers();
+        break;
+      
+      case "hiroshima":
+        map.flyTo({ center: [132.49214, 34.39090], zoom: 12.59, bearing: -8, pitch: 18, duration: 1500 });
+        
+        // IMPORTANT: On montre la légende et on active toutes les couches immédiatement
+        if (legendHiroshima) {
+          legendHiroshima.style.display = "block";
+        }
+        
+        // Force l'affichage immédiat des couches d'Hiroshima
+        // Pas besoin d'attendre que la carte soit chargée
+        ['hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer'].forEach(layer => {
+          try {
+            if (map.getLayer(layer)) {
+              map.setLayoutProperty(layer, 'visibility', 'visible');
+              console.log(`Couche ${layer} affichée`);
+            }
+          } catch (error) {
+            console.error(`Erreur d'affichage de la couche ${layer}:`, error);
+          }
+        });
+        
+        // Cache les couches de Nagasaki
+        ['nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer'].forEach(layer => {
+          try {
+            if (map.getLayer(layer)) {
+              map.setLayoutProperty(layer, 'visibility', 'none');
+            }
+          } catch (error) {}
+        });
+        
+        // Réinitialiser l'état des boutons de légende
+        resetLegendButtons('hiroshima');
+        break;
+      
+      case "nagasaki":
+        map.flyTo({ center: [129.87881, 32.75857], zoom: 13.2, bearing: -49.60, pitch: 34.50, duration: 1500 });
+        
+        // IMPORTANT: On montre la légende et on active toutes les couches immédiatement
+        if (legendNagasaki) {
+          legendNagasaki.style.display = "block";
+        }
+        
+        // Force l'affichage immédiat des couches de Nagasaki
+        ['nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer'].forEach(layer => {
+          try {
+            if (map.getLayer(layer)) {
+              map.setLayoutProperty(layer, 'visibility', 'visible');
+              console.log(`Couche ${layer} affichée`);
+            }
+          } catch (error) {
+            console.error(`Erreur d'affichage de la couche ${layer}:`, error);
+          }
+        });
+        
+        // Cache les couches d'Hiroshima
+        ['hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer'].forEach(layer => {
+          try {
+            if (map.getLayer(layer)) {
+              map.setLayoutProperty(layer, 'visibility', 'none');
+            }
+          } catch (error) {}
+        });
+        
+        // Réinitialiser l'état des boutons de légende
+        resetLegendButtons('nagasaki');
+        break;
+      
+      case "infographie-hiroshima":
+        map.flyTo({ center: [131.5, 33.5], zoom: 5, duration: 1500 });
+        hideAllLayers();
+        break;
+      
+      case "conclusion":
+        map.flyTo({ center: [135.5, 35.0], zoom: 4, pitch: 45, duration: 1500 });
+        hideAllLayers();
+        break;
+    }
+  } catch (error) {
+    console.error("Erreur lors du changement de section:", error);
   }
 }
 
-@media (max-width: 900px) {
-  h1 {
-    font-size: 2.8rem;
-  }
+// SOLUTION AMÉLIORÉE: Gestionnaire pour la sortie des sections
+function handleStepExit(response) {
+  const { element, direction } = response;
+  const id = element.id;
   
-  h2 {
-    font-size: 2rem;
-  }
+  console.log(`Sortie de la section: ${id}, direction: ${direction}`);
   
-  .intro-title {
-    font-size: 3.2rem;
-  }
+  // Déterminer la prochaine/précédente section
+  const nextSectionId = direction === 'down' ? getNextSection(id) : getPreviousSection(id);
+  console.log(`Section suivante/précédente: ${nextSectionId}`);
   
-  .intro-badge {
-    font-size: 1rem;
-    top: -20px;
-    left: -15px;
-  }
+  const legendHiroshima = document.getElementById("legend-hiroshima");
+  const legendNagasaki = document.getElementById("legend-nagasaki");
   
-  .intro-content {
-    padding: 30px;
+  // CORRECTION: Gérer spécifiquement la transition entre Hiroshima et Timeline
+  if (id === "hiroshima" && nextSectionId === "timeline") {
+    // On quitte Hiroshima vers Timeline (direction up)
+    if (legendHiroshima) {
+      legendHiroshima.style.display = "none";
+    }
+    hideAllLayers();
   }
-  
-  #quick-nav {
-    right: 10px;
+  // Gérer la transition entre Timeline et Intro (masquer les légendes)
+  else if (id === "timeline" && nextSectionId === "intro") {
+    if (legendHiroshima) legendHiroshima.style.display = "none";
+    if (legendNagasaki) legendNagasaki.style.display = "none";
   }
-  
-  #fixed-legend {
-    left: 10px;
-    bottom: 10px;
-    top: auto;
+  // Gérer la transition entre Hiroshima et Nagasaki
+  else if (id === "hiroshima" && nextSectionId === "nagasaki") {
+    if (legendHiroshima) legendHiroshima.style.display = "none";
+    // Montrer la légende de Nagasaki sera fait dans handleStepEnter
   }
-  
-  .fixed-legend-content {
-    max-width: calc(100vw - 20px);
+  // Gérer la transition entre Nagasaki et Infographie
+  else if (id === "nagasaki" && nextSectionId === "infographie-hiroshima") {
+    if (legendNagasaki) legendNagasaki.style.display = "none";
+    hideAllLayers();
   }
-  
-  .infographie-interactive {
-    height: auto;
-    padding: 20px;
-  }
-  
-  .bomb-comparison {
-    height: auto;
-    margin-bottom: 40px;
-  }
-  
-  .blast-radius-comparison {
-    height: 300px;
-  }
-  
-  .footer-info {
-    flex-direction: column;
-    gap: 20px;
+  // Gérer la transition entre Nagasaki et Hiroshima (remontée)
+  else if (id === "nagasaki" && nextSectionId === "hiroshima") {
+    if (legendNagasaki) legendNagasaki.style.display = "none";
+    // La légende d'Hiroshima sera affichée par handleStepEnter
   }
 }
 
-@media (max-width: 600px) {
-  body {
-    cursor: auto; /* Restaurer le curseur par défaut sur mobile */
-  }
+// Fonction pour montrer uniquement les couches d'Hiroshima
+function showHiroshimaLayers() {
+  if (!map.loaded()) return;
   
-  .custom-cursor,
-  .custom-cursor-trail {
-    display: none;
-  }
+  // Afficher les couches d'Hiroshima
+  ['hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer'].forEach(layer => {
+    try {
+      if (map.getLayer(layer)) {
+        map.setLayoutProperty(layer, 'visibility', 'visible');
+      }
+    } catch (error) {}
+  });
   
-  .intro-title {
-    font-size: 2.5rem;
-  }
+  // Cacher les couches de Nagasaki
+  ['nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer'].forEach(layer => {
+    try {
+      if (map.getLayer(layer)) {
+        map.setLayoutProperty(layer, 'visibility', 'none');
+      }
+    } catch (error) {}
+  });
+}
+
+// Fonction pour montrer uniquement les couches de Nagasaki
+function showNagasakiLayers() {
+  if (!map.loaded()) return;
   
-  .intro-line-highlight {
-    font-size: 120%;
-  }
+  // Afficher les couches de Nagasaki
+  ['nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer'].forEach(layer => {
+    try {
+      if (map.getLayer(layer)) {
+        map.setLayoutProperty(layer, 'visibility', 'visible');
+      }
+    } catch (error) {}
+  });
   
-  .intro-meta {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-  }
+  // Cacher les couches d'Hiroshima
+  ['hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer'].forEach(layer => {
+    try {
+      if (map.getLayer(layer)) {
+        map.setLayoutProperty(layer, 'visibility', 'none');
+      }
+    } catch (error) {}
+  });
+}
+
+// Fonction pour cacher toutes les couches - optimisée pour éviter les erreurs inutiles
+function hideAllLayers() {
+  if (!map.loaded()) return;
   
-  .timeline::before {
-    left: 20px;
-  }
+  const allLayers = [
+    'hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer',
+    'nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer'
+  ];
   
-  .timeline-item {
-    width: 100%;
-    padding-left: 50px;
-    padding-right: 15px;
-    left: 0 !important;
-    text-align: left !important;
-  }
-  
-  .timeline-item.left::after,
-  .timeline-item.right::after {
-    left: 12px;
-    right: auto;
-  }
-  
-  .timeline-item.left .timeline-connector,
-  .timeline-item.right .timeline-connector {
-    left: 25px;
-    right: auto;
-    width: 20px;
-  }
-  
-  .timeline-item.left .timeline-content::after,
-  .timeline-item.right .timeline-content::after {
-    left: 0;
-    right: auto;
-  }
-  
-  .timeline-item.left .timeline-title::after,
-  .timeline-item.right .timeline-title::after {
-    left: 0;
-    right: auto;
-  }
-  
-  .sticky-content {
-    max-width: 100%;
-    margin: 10px;
-    padding: 20px;
-  }
-  
-  .stat-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .tab-btn {
-    padding: 10px;
-    font-size: 0.9rem;
-  }
-  
-  .final-quote {
-    padding: 15px;
-    font-size: 1.1rem;
-  }
-  
-  #progress-container {
-    height: 4px;
-  }
-  
-  #quick-nav {
-    display: none;
-  }
-  
-  /* Make legends more mobile-friendly */
-  #fixed-legend {
-    width: calc(100% - 20px);
-    text-align: center;
-  }
-  
-  .fixed-legend-content {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .toggle-btn {
-    margin: 5px;
+  allLayers.forEach(layer => {
+    try {
+      if (map.getLayer(layer)) {
+        map.setLayoutProperty(layer, 'visibility', 'none');
+      }
+    } catch (error) {
+      // Ne pas logguer les erreurs ici pour éviter de surcharger la console
+    }
+  });
+}
+
+// Fonction pour réinitialiser les boutons de légende à l'état actif
+function resetLegendButtons(city) {
+  if (city === 'hiroshima') {
+    // Réinitialiser les boutons d'Hiroshima
+    ['toggle-destroyed-fixed', 'toggle-lessdestroyed-fixed', 'toggle-sauve-fixed'].forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.classList.add('active');
+        btn.classList.remove('inactive');
+        btn.style.opacity = '1';
+      }
+    });
+  } else if (city === 'nagasaki') {
+    // Réinitialiser les boutons de Nagasaki
+    ['toggle-naga-detruit-fixed', 'toggle-naga-feu-fixed', 'toggle-naga-sauve-fixed'].forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) {
+        btn.classList.add('active');
+        btn.classList.remove('inactive');
+        btn.style.opacity = '1';
+      }
+    });
   }
 }
 
-/* ----- Animation d'apparition générale ----- */
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+// Initialisation du scrollytelling AMÉLIORÉE avec onStepExit
+function initScrollytelling() {
+  try {
+    scroller.setup({
+      container: "#scroll-container",
+      step: ".step",
+      offset: 0.5,
+      debug: false
+    })
+    .onStepEnter(handleStepEnter)
+    .onStepExit(handleStepExit);
+    
+    // Animation optimisée de la timeline au scroll
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Animation en cascade
+          const index = Array.from(timelineItems).indexOf(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 100); // Réduit à 100ms pour une animation plus rapide
+        }
+      });
+    }, { threshold: 0.25 });
+    
+    timelineItems.forEach(item => {
+      observer.observe(item);
+    });
+    
+    // Autres initialisations
+    initQuickNav();
+    initTabs();
+    initProgressBar();
+    initCustomCursor();
+    
+    // Position initiale
+    setTimeout(() => {
+      const firstStep = document.querySelector('.step');
+      if (firstStep) {
+        handleStepEnter({ element: firstStep });
+      }
+    }, 300); // Réduit à 300ms pour une réactivité accrue
+  } catch (error) {
+    console.error("Erreur d'initialisation du scrollytelling:", error);
+  }
 }
 
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ----- Correction pour le menu de navigation et les liens ----- */
-#quick-nav a,
-.maplibregl-ctrl a {
-  color: transparent !important;
-  text-decoration: none !important;
-}
-
-.maplibregl-ctrl-attrib-inner a {
-  color: #333 !important;
-}
-
-/* ----- Correction pour la légende ----- */
-.toggle-btn {
-  cursor: pointer !important;
-  user-select: none !important;
-}
-
-.toggle-btn.active {
-  opacity: 1 !important;
-}
-
-.toggle-btn.inactive {
-  opacity: 0.5 !important;
-}
-
-/* ----- Attention, ces styles concernent le mode sombre (préparés mais non activés) ----- */
-.dark-mode {
-  --primary: #FF4D4D;
-  --primary-light: #FF7777;
-  --primary-dark: #CC0000;
+// ======= NAVIGATION RAPIDE =======
+function initQuickNav() {
+  const quickNavLinks = document.querySelectorAll('#quick-nav a');
   
-  --secondary: #F5F5F5;
-  --secondary-light: #FFFFFF;
-  --secondary-lighter: #EEEEEE;
+  quickNavLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href').substring(1);
+      const targetSection = document.getElementById(targetId);
+      
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+}
+
+// ======= TABS POUR L'INFOGRAPHIE =======
+function initTabs() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
   
-  --background: #121212;
-  --background-alt: #1E1E1E;
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Désactiver tous les onglets
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Activer l'onglet sélectionné
+      this.classList.add('active');
+      const targetId = this.getAttribute('data-target');
+      const targetContent = document.getElementById(targetId);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+    });
+  });
+}
+
+// ======= BARRE DE PROGRESSION OPTIMISÉE =======
+function initProgressBar() {
+  const progressBar = document.getElementById('progress-bar');
+  const progressIndicator = document.getElementById('progress-indicator');
+  const scrollContainer = document.getElementById('scroll-container');
   
-  --text: #F5F5F5;
-  --text-light: #CCCCCC;
-  --text-lighter: #999999;
-  --text-white: #FFFFFF;
+  if (!progressBar || !progressIndicator || !scrollContainer) return;
+  
+  let lastScrollPosition = 0;
+  let lastScrollTime = 0;
+  
+  scrollContainer.addEventListener('scroll', function() {
+    // Limiter les mises à jour à 60 FPS maximum
+    const now = Date.now();
+    if (now - lastScrollTime < 16) return; // ~60 FPS
+    
+    // Éviter les mises à jour minuscules
+    const scrollTop = scrollContainer.scrollTop;
+    if (Math.abs(scrollTop - lastScrollPosition) < 5) return;
+    
+    const scrollHeight = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    const scrollProgress = (scrollTop / scrollHeight) * 100;
+    
+    // Mettre à jour directement le style sans requestAnimationFrame
+    progressBar.style.width = scrollProgress + '%';
+    progressIndicator.style.left = scrollProgress + '%';
+    
+    lastScrollPosition = scrollTop;
+    lastScrollTime = now;
+  });
+}
+
+// ======= CURSEUR PERSONNALISÉ OPTIMISÉ =======
+function initCustomCursor() {
+  // Ne pas activer sur mobile ou tablette
+  if (window.innerWidth <= 1024) return;
+  
+  const cursor = document.querySelector('.custom-cursor');
+  const cursorTrail = document.querySelector('.custom-cursor-trail');
+  
+  if (!cursor || !cursorTrail) return;
+  
+  // Optimisation: utiliser transform au lieu de left/top
+  document.addEventListener('mousemove', throttleRAF(function(e) {
+    cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    
+    // Effet de traînée
+    setTimeout(() => {
+      cursorTrail.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+    }, 50);
+  }));
+  
+  // Effet au survol des éléments cliquables
+  const clickables = document.querySelectorAll('a, button, .toggle-btn');
+  
+  clickables.forEach(element => {
+    element.addEventListener('mouseenter', function() {
+      cursor.style.width = '20px';
+      cursor.style.height = '20px';
+      cursorTrail.style.width = '35px';
+      cursorTrail.style.height = '35px';
+    });
+    
+    element.addEventListener('mouseleave', function() {
+      cursor.style.width = '10px';
+      cursor.style.height = '10px';
+      cursorTrail.style.width = '24px';
+      cursorTrail.style.height = '24px';
+    });
+  });
+}
+
+// ======= RESPONSIVE HANDLING =======
+function handleResize() {
+  const width = window.innerWidth;
+  
+  if (width <= 1024) {
+    const cursor = document.querySelector('.custom-cursor');
+    const cursorTrail = document.querySelector('.custom-cursor-trail');
+    
+    if (cursor) cursor.style.display = 'none';
+    if (cursorTrail) cursorTrail.style.display = 'none';
+  } else {
+    const cursor = document.querySelector('.custom-cursor');
+    const cursorTrail = document.querySelector('.custom-cursor-trail');
+    
+    if (cursor) cursor.style.display = 'block';
+    if (cursorTrail) cursorTrail.style.display = 'block';
+  }
+  
+  // Réinitialiser le scrollytelling à chaque redimensionnement significatif
+  if (scroller && Math.abs(window.innerWidth - lastWidth) > 50) {
+    scroller.resize();
+    lastWidth = window.innerWidth;
+  }
+}
+
+// Garder une trace de la dernière largeur de fenêtre
+let lastWidth = window.innerWidth;
+
+// ======= INITIALISATION GÉNÉRALE =======
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOM chargé, initialisation...");
+  
+  // Initialiser les fonctionnalités de base
+  initProgressBar();
+  initQuickNav();
+  initTabs();
+  
+  // Précacher les ressources importantes
+  precacheResources();
+  
+  // Gestion du redimensionnement
+  window.addEventListener('resize', debounce(handleResize, 150)); // Réduit à 150ms
+  handleResize();
+});
+
+// Fonction pour précacher les ressources importantes
+function precacheResources() {
+  // Préchargement des images pour éviter les retards de rendu
+  const urls = [
+    'https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/3/3d/Fat_Man_Assembled_Tinian_1945.jpg'
+  ];
+  
+  urls.forEach(url => {
+    const img = new Image();
+    img.src = url;
+  });
 }
