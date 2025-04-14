@@ -148,7 +148,7 @@ map.on('load', function() {
     '#FFA500');
   
   addMapLayer('hiroshima_sauve', 
-    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Hiroshima/sauve.geojson', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Hiroshima/hiro_part_detruit_v2.geojson', 
     '#2E8B57');
 
   // --- Nagasaki ---
@@ -157,7 +157,7 @@ map.on('load', function() {
     '#B22222');
   
   addMapLayer('nagasaki_feu', 
-    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Nagasaki/naga_feu.geojson', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Nagasaki/naga_feu_v2.geojson', 
     '#FFA500');
   
   addMapLayer('nagasaki_sauve', 
