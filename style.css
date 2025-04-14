@@ -760,6 +760,146 @@ button:hover ~ .custom-cursor {
   left: -30px;
 }
 
+/* Styles pour l'horloge Heure H */
+.timeline-item.heure-h::after {
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  border: 5px solid white;
+  animation: pulse 1.5s infinite;
+}
+
+.timeline-clock {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.clock-face {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: white;
+  position: relative;
+  border: 3px solid var(--primary);
+  box-shadow: var(--shadow-md);
+}
+
+.clock-hand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 35px;
+  height: 4px;
+  background: var(--primary);
+  transform-origin: 0 50%;
+  transform: rotate(60deg);
+}
+
+.clock-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: var(--primary);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Styles pour la section lorem-section - Même style que conclusion */
+#lorem-section {
+  background: white;
+  color: var(--text);
+  min-height: 100vh;
+  padding: 80px 0;
+}
+
+#lorem-section .article-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+#lorem-section .content-wrapper {
+  padding: 0 20px;
+  text-align: center;
+}
+
+#lorem-section .section-badge {
+  display: inline-block;
+  background: #AF0D1D;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+
+#lorem-section .article-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #1A1A1A;
+  line-height: 1.2;
+  text-align: center;
+}
+
+#lorem-section .article-content {
+  color: #333;
+  line-height: 1.6;
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* Texte justifié */
+#lorem-section .article-content p {
+  text-align: justify;
+  hyphens: auto;
+}
+
+#lorem-section .lead-paragraph {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  color: #1A1A1A;
+}
+
+#lorem-section .article-quote {
+  margin: 30px auto;
+  padding: 20px 30px;
+  font-style: italic;
+  font-size: 20px;
+  border-left: 4px solid #AF0D1D;
+  border-right: 4px solid #AF0D1D;
+  background: #F6F6F6;
+  position: relative;
+  color: #333;
+  max-width: 550px;
+  text-align: center;
+}
+
+#lorem-section .article-quote::before {
+  content: '"';
+  position: absolute;
+  top: 0;
+  left: 10px;
+  font-size: 60px;
+  color: #AF0D1D;
+  opacity: 0.2;
+  line-height: 1;
+}
+
+#lorem-section .article-quote cite {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
 /* ----- Sticky Container (Hiroshima & Nagasaki) ----- */
 .sticky-container {
   position: sticky;
@@ -1150,13 +1290,13 @@ button:hover ~ .custom-cursor {
   margin-left: -50vw;
   margin-right: -50vw;
   overflow: hidden;
-  height: 500px; /* Hauteur fixe pour le bandeau */
+  height: 500px;
 }
 
 .full-width-banner img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Assure que l'image couvre tout l'espace sans déformation */
+  object-fit: cover;
   display: block;
 }
 
@@ -1452,6 +1592,11 @@ button:hover ~ .custom-cursor {
   #conclusion .article-container {
     max-width: 90%;
   }
+  
+  .columns-container {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
 
 @media (max-width: 900px) {
@@ -1525,6 +1670,28 @@ button:hover ~ .custom-cursor {
   #conclusion .article-quote {
     font-size: 18px;
     padding: 15px 20px;
+  }
+  
+  .content-container {
+    padding: 0 15px;
+  }
+  
+  #lorem-section .article-title {
+    font-size: 24px;
+  }
+  
+  #lorem-section .lead-paragraph {
+    font-size: 16px;
+  }
+  
+  #lorem-section .article-quote {
+    font-size: 18px;
+    padding: 15px 20px;
+  }
+}
+  
+  .section-title {
+    font-size: 2rem;
   }
 }
 
@@ -1636,6 +1803,19 @@ button:hover ~ .custom-cursor {
   
   .toggle-btn {
     margin: 5px;
+  }
+  
+  .lead-paragraph {
+    font-size: 1.1rem;
+  }
+  
+  .clock-face {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .clock-hand {
+    width: 25px;
   }
 }
 
