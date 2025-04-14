@@ -381,6 +381,12 @@ function handleStepEnter(response) {
         hideAllLayers();
         break;
       
+      // Ajout de la nouvelle section lorem-section
+      case "lorem-section":
+        map.flyTo({ center: [135, 36], zoom: 5, duration: 1500 });
+        hideAllLayers();
+        break;
+      
       case "hiroshima":
         map.flyTo({ center: [132.49214, 34.39090], zoom: 12.59, bearing: -8, pitch: 18, duration: 1500 });
         
@@ -477,18 +483,27 @@ function handleStepExit(response) {
   const legendHiroshima = document.getElementById("legend-hiroshima");
   const legendNagasaki = document.getElementById("legend-nagasaki");
   
-  // CORRECTION: Gérer spécifiquement la transition entre Hiroshima et Timeline
-  if (id === "hiroshima" && nextSectionId === "timeline") {
-    // On quitte Hiroshima vers Timeline (direction up)
-    if (legendHiroshima) {
-      legendHiroshima.style.display = "none";
-    }
-    hideAllLayers();
-  }
   // Gérer la transition entre Timeline et Intro (masquer les légendes)
-  else if (id === "timeline" && nextSectionId === "intro") {
+  if (id === "timeline" && nextSectionId === "intro") {
     if (legendHiroshima) legendHiroshima.style.display = "none";
     if (legendNagasaki) legendNagasaki.style.display = "none";
+  }
+  // Gérer la transition entre Timeline et Lorem-section
+  else if (id === "timeline" && nextSectionId === "lorem-section") {
+    hideAllLayers();
+  }
+  // Gérer la transition entre Lorem-section et Timeline
+  else if (id === "lorem-section" && nextSectionId === "timeline") {
+    hideAllLayers();
+  }
+  // Gérer la transition entre Lorem-section et Hiroshima
+  else if (id === "lorem-section" && nextSectionId === "hiroshima") {
+    // La légende d'Hiroshima sera affichée par handleStepEnter
+  }
+  // Gérer la transition entre Hiroshima et Lorem-section (remontée)
+  else if (id === "hiroshima" && nextSectionId === "lorem-section") {
+    if (legendHiroshima) legendHiroshima.style.display = "none";
+    hideAllLayers();
   }
   // Gérer la transition entre Hiroshima et Nagasaki
   else if (id === "hiroshima" && nextSectionId === "nagasaki") {
@@ -851,7 +866,8 @@ function precacheResources() {
   // Préchargement des images pour éviter les retards de rendu
   const urls = [
     'https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/3/3d/Fat_Man_Assembled_Tinian_1945.jpg'
+    'https://upload.wikimedia.org/wikipedia/commons/3/3d/Fat_Man_Assembled_Tinian_1945.jpg',
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Genbaku_Dome_01.jpg/1280px-Genbaku_Dome_01.jpg'
   ];
   
   urls.forEach(url => {
