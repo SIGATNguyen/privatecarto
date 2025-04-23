@@ -71,7 +71,7 @@ html, body {
 }
 
 body {
-  cursor: none; /* Cache le curseur par défaut */
+  /* SUPPRIMÉ: cursor: none; - Réactivation du curseur par défaut */
   position: relative;
 }
 
@@ -148,41 +148,7 @@ a {
   to { transform: rotate(360deg); }
 }
 
-/* ----- Custom Cursor with Trail ----- */
-.custom-cursor {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  background: var(--primary);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: var(--z-extreme);
-  mix-blend-mode: exclusion;
-  will-change: transform;
-  transition: width 0.2s, height 0.2s;
-}
-
-.custom-cursor-trail {
-  position: fixed;
-  width: 24px;
-  height: 24px;
-  background: rgba(175, 13, 29, 0.2);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: calc(var(--z-extreme) - 1);
-  transition: transform 0.1s, width 0.2s, height 0.2s, opacity 0.3s;
-  will-change: transform;
-}
-
-/* Effet d'agrandissement sur les éléments interactifs */
-a:hover ~ .custom-cursor,
-button:hover ~ .custom-cursor {
-  width: 20px;
-  height: 20px;
-  background: var(--primary);
-}
+/* ----- SUPPRIMÉ: Custom Cursor with Trail ----- */
 
 /* ----- Global Progress Bar ----- */
 #progress-container {
@@ -216,63 +182,7 @@ button:hover ~ .custom-cursor {
   box-shadow: 0 0 8px rgba(175, 13, 29, 0.8);
 }
 
-/* ----- Quick Navigation Menu ----- */
-#quick-nav {
-  position: fixed !important;
-  top: 50% !important;
-  right: 20px !important;
-  transform: translateY(-50%) !important;
-  z-index: var(--z-overlay) !important;
-}
-
-#quick-nav ul {
-  list-style: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 15px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-#quick-nav a {
-  display: block !important;
-  width: 12px !important;
-  height: 12px !important;
-  border-radius: 50% !important;
-  background: rgba(0, 0, 0, 0.2) !important;
-  transition: all 0.3s ease !important;
-  position: relative !important;
-  color: transparent !important;
-  text-decoration: none !important;
-  overflow: hidden !important;
-}
-
-#quick-nav a::before {
-  content: attr(href);
-  position: absolute;
-  right: 25px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  background: var(--secondary);
-  color: white;
-  padding: 5px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-#quick-nav a:hover::before {
-  opacity: 1;
-}
-
-#quick-nav a.active,
-#quick-nav a:hover {
-  background: var(--primary) !important;
-  transform: scale(1.3) !important;
-}
+/* ----- SUPPRIMÉ: Quick Navigation Menu ----- */
 
 /* ----- Map Container ----- */
 #map-container {
@@ -355,27 +265,17 @@ button:hover ~ .custom-cursor {
   transform: translateY(-3px);
 }
 
-/* ----- Intro Section ----- */
+/* ----- Intro Section - MODIFIÉ avec fond de couleur sobre ----- */
 .intro-background {
-  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)),
-    url('https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg');
-  background-position: center;
-  background-size: cover;
+  /* Remplacé l'image avec un fond de couleur sobre */
+  background: var(--secondary);
   width: 100%;
   height: 100vh;
   position: relative;
   overflow: hidden;
 }
 
-.intro-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at center, rgba(175, 13, 29, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
-  z-index: 1;
-}
+/* SUPPRIMÉ: particles */
 
 .intro-overlay {
   position: absolute;
@@ -1397,7 +1297,7 @@ button:hover ~ .custom-cursor {
   font-size: 16px;
 }
 
-/* ----- Footer Section ----- */
+/* ----- Footer Section - MODIFIÉE pour le client ----- */
 #footer {
   background: var(--secondary);
   color: white;
@@ -1415,9 +1315,12 @@ button:hover ~ .custom-cursor {
   text-align: center;
 }
 
-.footer-logo img {
-  max-width: 180px;
-  filter: brightness(0) invert(1);
+/* Ajout d'un style pour le texte à la place du logo */
+.footer-logo h3 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--primary);
+  letter-spacing: 1px;
 }
 
 .footer-info {
@@ -1457,27 +1360,17 @@ button:hover ~ .custom-cursor {
   color: #ccc;
 }
 
-.portfolio-link {
+/* REMPLACÉ: portfolio-link avec copyright-info */
+.copyright-info {
   text-align: center;
-  margin-top: 30px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.portfolio-button {
-  display: inline-block;
-  background: var(--primary);
-  color: white;
-  text-decoration: none;
-  padding: 12px 25px;
-  border-radius: 30px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
-}
-
-.portfolio-button:hover {
-  background: var(--primary-dark);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+.copyright-info p {
+  font-size: 0.8rem;
+  color: #999;
 }
 
 /* ----- Legend ----- */
@@ -1622,9 +1515,7 @@ button:hover ~ .custom-cursor {
     padding: 30px;
   }
   
-  #quick-nav {
-    right: 10px;
-  }
+  /* SUPPRIMÉ: #quick-nav */
   
   #fixed-legend {
     left: 10px;
@@ -1690,9 +1581,8 @@ button:hover ~ .custom-cursor {
   }
 }
   
-  .section-title {
-    font-size: 2rem;
-  }
+.section-title {
+  font-size: 2rem;
 }
 
 @media (max-width: 600px) {
@@ -1700,10 +1590,7 @@ button:hover ~ .custom-cursor {
     cursor: auto; /* Restaurer le curseur par défaut sur mobile */
   }
   
-  .custom-cursor,
-  .custom-cursor-trail {
-    display: none;
-  }
+  /* SUPPRIMÉ: custom-cursor et custom-cursor-trail */
   
   .intro-title {
     font-size: 2.5rem;
@@ -1785,9 +1672,7 @@ button:hover ~ .custom-cursor {
     height: 4px;
   }
   
-  #quick-nav {
-    display: none;
-  }
+  /* SUPPRIMÉ: #quick-nav */
   
   /* Make legends more mobile-friendly */
   #fixed-legend {
@@ -1832,7 +1717,7 @@ button:hover ~ .custom-cursor {
 }
 
 /* ----- Correction pour le menu de navigation et les liens ----- */
-#quick-nav a,
+/* SUPPRIMÉ: #quick-nav a */
 .maplibregl-ctrl a {
   color: transparent !important;
   text-decoration: none !important;
