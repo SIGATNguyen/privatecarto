@@ -1,3 +1,8 @@
+// -----------------------------------------
+// SCRIPT MODIFIÉ POUR LE CLIENT
+// Suppression du curseur personnalisé et des éléments de navigation par chapitre
+// -----------------------------------------
+
 // Fonction utilitaire pour détecter les appareils mobiles
 function isMobile() {
   return window.innerWidth <= 768;
@@ -7,6 +12,7 @@ function isMobile() {
 let lastWidth = window.innerWidth;
 
 // ======= PERFORMANCE UTILITIES =======
+// Optimise les appels de callback en utilisant requestAnimationFrame
 function throttleRAF(callback) {
   let ticking = false;
   return function(...args) {
@@ -20,6 +26,7 @@ function throttleRAF(callback) {
   };
 }
 
+// Retarde l'exécution d'une fonction jusqu'à ce que l'utilisateur ait cessé d'interagir
 function debounce(func, wait) {
   let timeout;
   return function(...args) {
@@ -29,6 +36,7 @@ function debounce(func, wait) {
 }
 
 // ======= RESPONSIVE HANDLING =======
+// Gère le redimensionnement de la fenêtre et adapte l'interface
 function handleResize() {
   const width = window.innerWidth;
   const wasMobile = lastWidth <= 768;
@@ -40,19 +48,7 @@ function handleResize() {
     return;
   }
   
-  if (width <= 1024) {
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorTrail = document.querySelector('.custom-cursor-trail');
-    
-    if (cursor) cursor.style.display = 'none';
-    if (cursorTrail) cursorTrail.style.display = 'none';
-  } else {
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorTrail = document.querySelector('.custom-cursor-trail');
-    
-    if (cursor) cursor.style.display = 'block';
-    if (cursorTrail) cursorTrail.style.display = 'block';
-  }
+  // SUPPRIMÉ: Gestion du curseur personnalisé
   
   // Réinitialiser le scrollytelling à chaque redimensionnement significatif
   if (scroller && Math.abs(window.innerWidth - lastWidth) > 50) {
@@ -353,13 +349,7 @@ function handleStepEnter(response) {
   // Mémoriser la section actuelle
   currentSection = id;
   
-  // Mettre à jour la navigation
-  document.querySelectorAll('#quick-nav a').forEach(link => {
-    link.classList.remove('active');
-  });
-  
-  const activeNavLink = document.querySelector(`#quick-nav a[href="#${id}"]`);
-  if (activeNavLink) activeNavLink.classList.add('active');
+  // SUPPRIMÉ: Mise à jour de la navigation
   
   // Masquer les légendes par défaut
   const legendHiroshima = document.getElementById("legend-hiroshima");
@@ -670,14 +660,11 @@ function initScrollytelling() {
     });
     
     // Autres initialisations
-    initQuickNav();
+    // SUPPRIMÉ: initQuickNav();
     initTabs();
     initProgressBar();
     
-    // Ne pas initialiser le curseur personnalisé sur mobile
-    if (!isMobile()) {
-      initCustomCursor();
-    }
+    // SUPPRIMÉ: Initialisation du curseur personnalisé
     
     // Position initiale
     setTimeout(() => {
@@ -691,34 +678,7 @@ function initScrollytelling() {
   }
 }
 
-// ======= NAVIGATION RAPIDE =======
-function initQuickNav() {
-  const quickNavLinks = document.querySelectorAll('#quick-nav a');
-  
-  quickNavLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetId = this.getAttribute('href').substring(1);
-      const targetSection = document.getElementById(targetId);
-      
-      if (targetSection) {
-        if (isMobile()) {
-          // Sur mobile, utiliser le scroll natif
-          targetSection.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          // Sur desktop, faire défiler notre conteneur
-          const scrollContainer = document.getElementById('scroll-container');
-          if (scrollContainer) {
-            scrollContainer.scrollTo({
-              top: targetSection.offsetTop,
-              behavior: 'smooth'
-            });
-          }
-        }
-      }
-    });
-  });
-}
+// ======= SUPPRIMÉ: NAVIGATION RAPIDE =======
 
 // ======= TABS POUR L'INFOGRAPHIE =======
 function initTabs() {
@@ -804,45 +764,7 @@ function initProgressBar() {
   }
 }
 
-// ======= CURSEUR PERSONNALISÉ OPTIMISÉ =======
-function initCustomCursor() {
-  // Ne pas activer sur mobile ou tablette
-  if (isMobile()) return;
-  
-  const cursor = document.querySelector('.custom-cursor');
-  const cursorTrail = document.querySelector('.custom-cursor-trail');
-  
-  if (!cursor || !cursorTrail) return;
-  
-  // Optimisation: utiliser transform au lieu de left/top
-  document.addEventListener('mousemove', throttleRAF(function(e) {
-    cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-    
-    // Effet de traînée
-    setTimeout(() => {
-      cursorTrail.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-    }, 50);
-  }));
-  
-  // Effet au survol des éléments cliquables
-  const clickables = document.querySelectorAll('a, button, .toggle-btn');
-  
-  clickables.forEach(element => {
-    element.addEventListener('mouseenter', function() {
-      cursor.style.width = '20px';
-      cursor.style.height = '20px';
-      cursorTrail.style.width = '35px';
-      cursorTrail.style.height = '35px';
-    });
-    
-    element.addEventListener('mouseleave', function() {
-      cursor.style.width = '10px';
-      cursor.style.height = '10px';
-      cursorTrail.style.width = '24px';
-      cursorTrail.style.height = '24px';
-    });
-  });
-}
+// ======= SUPPRIMÉ: CURSEUR PERSONNALISÉ OPTIMISÉ =======
 
 // ======= INITIALISATION GÉNÉRALE =======
 document.addEventListener('DOMContentLoaded', function() {
@@ -850,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialiser les fonctionnalités de base
   initProgressBar();
-  initQuickNav();
+  // SUPPRIMÉ: initQuickNav();
   initTabs();
   
   // Précacher les ressources importantes
@@ -865,7 +787,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function precacheResources() {
   // Préchargement des images pour éviter les retards de rendu
   const urls = [
-    'https://static-images.lpnt.fr/cd-cw1618/images/2020/08/30/20671109lpw-20671118-article-hiroshima-bombe-nucleaire-japon-jpg_7311454_660x287.jpg',
+    // SUPPRIMÉ: background image de l'intro
     'https://upload.wikimedia.org/wikipedia/commons/3/3d/Fat_Man_Assembled_Tinian_1945.jpg',
     'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Genbaku_Dome_01.jpg/1280px-Genbaku_Dome_01.jpg'
   ];
