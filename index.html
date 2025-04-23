@@ -20,9 +20,7 @@
     <p>Chargement de la carte...</p>
   </div>
   
-  <!-- Curseur personnalisé avec traînée -->
-  <div class="custom-cursor"></div>
-  <div class="custom-cursor-trail"></div>
+  <!-- SUPPRIMÉ: Curseur personnalisé avec traînée -->
   
   <!-- Barre de progression globale avec indicateur -->
   <div id="progress-container">
@@ -30,17 +28,7 @@
     <div id="progress-indicator"></div>
   </div>
   
-  <!-- Menu de navigation rapide -->
-  <nav id="quick-nav">
-    <ul>
-      <li><a href="#intro" class="active">Intro</a></li>
-      <li><a href="#timeline">Chronologie</a></li>
-      <li><a href="#lorem-section">Contexte</a></li>
-      <li><a href="#hiroshima">Hiroshima</a></li>
-      <li><a href="#nagasaki">Nagasaki</a></li>
-      <li><a href="#conclusion">Conclusion</a></li>
-    </ul>
-  </nav>
+  <!-- SUPPRIMÉ: Menu de navigation rapide -->
   
   <!-- Carte en fond avec effet de profondeur -->
   <div id="map-container">
@@ -85,10 +73,10 @@
   <!-- Contenu du scrollytelling avec sections améliorées -->
   <main id="scroll-container">
     <div class="scroller">
-      <!-- Section Intro - DESIGN AMÉLIORÉ -->
+      <!-- Section Intro - MODIFIÉE: fond uni au lieu d'image -->
       <section class="step" id="intro">
         <div class="intro-background">
-          <div class="intro-particles"></div>
+          <!-- SUPPRIMÉ: particles et remplacé par un fond uni -->
           <div class="intro-overlay">
             <div class="intro-content">
               <div class="intro-badge pulse-effect">80 ANS</div>
@@ -101,7 +89,7 @@
               <div class="intro-meta">
                 <div class="meta-info">
                   <small class="meta-date">PUBLIÉ LE 23 FÉVRIER 2025</small>
-                  <small class="byline">Par M2_SIGAT_OFCARTO</small>
+                  <small class="byline">Par Bureau d'Études Historiques</small>
                 </div>
                 <div class="scroll-indicator">
                   <span>Défiler pour découvrir</span>
@@ -117,7 +105,7 @@
       
       <!-- Section Timeline MODIFIÉE - Avec seulement 4 événements et un bloc "Heure H" final -->
       <section class="step" id="timeline">
-        <h2 class="timeline-header">La Guerre du Pacifique</h2>
+        <h2 class="timeline-header">De Pearl Harbor à l'heure H</h2>
         <p class="timeline-subtitle">Chronologie des événements majeurs qui ont façonné le conflit</p>
         
         <!-- Timeline Container -->
@@ -372,16 +360,17 @@
         </article>
       </section>
       
-      <!-- Section Footer améliorée -->
+      <!-- Section Footer améliorée - MODIFIÉE pour client -->
       <section id="footer">
         <article class="footer-content">
           <div class="footer-logo">
-            <img src="https://media.ouest-france.fr/v1/documents/d5a06162881f47abde8ca2f7b57b769e-of.svg" alt="Logo Ouest-France" />
+            <!-- Logo neutre pour client -->
+            <h3>Bureau d'Études Historiques</h3>
           </div>
           <div class="footer-info">
             <div class="footer-section">
-              <h3>Équipe</h3>
-              <p>© 2025 MASTER SIGAT - Université Rennes 2</p>
+              <h3>À propos</h3>
+              <p>© 2025 2025 MASTER SIGAT - Université Rennes 2</p>
               <p>En partenariat avec Ouest-France</p>
             </div>
             <div class="footer-section">
@@ -391,13 +380,13 @@
               <p>Centre d'études sur la bombe atomique de Nagasaki</p>
             </div>
             <div class="footer-section">
-              <h3>Technologie</h3>
+              <h3>Technologies</h3>
               <p>Développé avec MapLibre et Scrollama</p>
-              <p>Données géospatiales : SIGAT</p>
+              <p>TDonnées géospatiales : SIGAT</p>
             </div>
           </div>
-          <div class="portfolio-link">
-            <a href="#" class="portfolio-button">Découvrir d'autres projets</a>
+          <div class="copyright-info">
+            <p>Tous droits réservés.</p>
           </div>
         </article>
       </section>
