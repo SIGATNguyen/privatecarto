@@ -158,25 +158,23 @@ map.on('load', function() {
     '#f39c9e');
     
   // --- Rennes (simulation fictive) ---
-  // Note: vous devrez créer ces fichiers GeoJSON ou remplacer les URLs
-  // par vos propres fichiers pour la simulation de Rennes
   addMapLayer('rennes_detruit', 
-    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Rennes/rennes_destruction_totale.geojson', 
-    '#B22222');
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/tampon_1km6_4326.geojson', 
+    '#af0d1d');
   
   addMapLayer('rennes_partiel', 
-    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Rennes/rennes_destruction_partielle.geojson', 
-    '#FFA500');
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/tampon_3km_4326.geojson', 
+    '#ea504c');
   
-  addMapLayer('rennes_radiation', 
-    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Rennes/rennes_zone_radiation.geojson', 
+  addMapLayer('rennes_radius', 
+    'https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/lignes_rennes.geojson', 
     '#6B8E23');
 
   // Par défaut, on cache toutes les couches jusqu'à ce qu'on arrive à la section correspondante
   const allLayers = [
     'hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer',
     'nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer',
-    'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'
+    'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius',
   ];
   
   allLayers.forEach(layer => {
@@ -390,12 +388,12 @@ function handleStepEnter(response) {
         break;
       
       case "lorem-section":
-        map.flyTo({ center: [135, 36], zoom: 5, duration: 1500 });
+        map.flyTo({ center: [137.40184, 36.39750], zoom: 5, duration: 1500 });
         hideAllLayers();
         break;
       
       case "hiroshima":
-        map.flyTo({ center: [132.49214, 34.39090], zoom: 12.59, bearing: -8, pitch: 18, duration: 1500 });
+        map.flyTo({ center: [132.49214, 34.39090], zoom: 12.59, bearing: -8, pitch: 18, duration: 8000 });
         
         // Montrer la légende et activer toutes les couches immédiatement
         if (legendHiroshima) {
@@ -416,7 +414,7 @@ function handleStepEnter(response) {
         
         // Cache les autres couches
         ['nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer',
-         'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'].forEach(layer => {
+         'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius_layer'].forEach(layer => {
           try {
             if (map.getLayer(layer)) {
               map.setLayoutProperty(layer, 'visibility', 'none');
@@ -429,7 +427,7 @@ function handleStepEnter(response) {
         break;
       
       case "nagasaki":
-        map.flyTo({ center: [129.87881, 32.75857], zoom: 13.2, bearing: -49.60, pitch: 34.50, duration: 1500 });
+        map.flyTo({ center: [129.87881, 32.75857], zoom: 13.2, bearing: -49.60, pitch: 34.50, duration: 8000 });
         
         // Montrer la légende et activer toutes les couches immédiatement
         if (legendNagasaki) {
@@ -450,7 +448,7 @@ function handleStepEnter(response) {
         
         // Cache les autres couches
         ['hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer',
-         'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'].forEach(layer => {
+         'rennes_detruit_layer', 'rennes_partiel_layer'].forEach(layer => {
           try {
             if (map.getLayer(layer)) {
               map.setLayoutProperty(layer, 'visibility', 'none');
@@ -474,7 +472,7 @@ function handleStepEnter(response) {
       
       // Nouvelle section pour Rennes
       case "rennes-impact":
-        map.flyTo({ center: [-1.6777, 48.1173], zoom: 12.5, bearing: 0, pitch: 25, duration: 1500 });
+        map.flyTo({ center: [-1.62366, 48.11567], zoom: 12.5, bearing: 0, pitch: 0, duration: 8000 });
         
         // Montrer la légende et activer toutes les couches immédiatement
         if (legendRennes) {
@@ -482,7 +480,7 @@ function handleStepEnter(response) {
         }
         
         // Force l'affichage immédiat des couches de Rennes
-        ['rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'].forEach(layer => {
+        ['rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius_layer'].forEach(layer => {
           try {
             if (map.getLayer(layer)) {
               map.setLayoutProperty(layer, 'visibility', 'visible');
@@ -565,7 +563,7 @@ function showHiroshimaLayers() {
   
   // Cacher les autres couches
   ['nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer',
-   'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'].forEach(layer => {
+   'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius_layer'].forEach(layer => {
     try {
       if (map.getLayer(layer)) {
         map.setLayoutProperty(layer, 'visibility', 'none');
@@ -589,7 +587,7 @@ function showNagasakiLayers() {
   
   // Cacher les autres couches
   ['hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer',
-   'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'].forEach(layer => {
+   'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius_layer'].forEach(layer => {
     try {
       if (map.getLayer(layer)) {
         map.setLayoutProperty(layer, 'visibility', 'none');
@@ -603,7 +601,7 @@ function showRennesLayers() {
   if (!map.loaded()) return;
   
   // Afficher les couches de Rennes
-  ['rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'].forEach(layer => {
+  ['rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius_layer'].forEach(layer => {
     try {
       if (map.getLayer(layer)) {
         map.setLayoutProperty(layer, 'visibility', 'visible');
@@ -629,7 +627,7 @@ function hideAllLayers() {
   const allLayers = [
     'hiroshima_detruit_layer', 'hiroshima_moinsdetruit_layer', 'hiroshima_sauve_layer',
     'nagasaki_detruit_layer', 'nagasaki_feu_layer', 'nagasaki_sauve_layer',
-    'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radiation_layer'
+    'rennes_detruit_layer', 'rennes_partiel_layer', 'rennes_radius_layer'
   ];
   
   allLayers.forEach(layer => {
@@ -869,4 +867,8 @@ function precacheResources() {
     const img = new Image();
     img.src = url;
   });
+
+
+  
+  
 }
