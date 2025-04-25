@@ -30,7 +30,7 @@
   --success: #f39c9e;         /* Vert pour les zones sauvées */
   --warning: #ea504c;         /* Orange pour les zones endommagées */
   --danger: #af0d1d;          /* Rouge foncé pour les zones détruites */
-  --radiation: #6B8E23;       /* Vert olive pour les zones de radiation */
+  --radiation: #6B8E23;       /* Vert olive pour les zones de radiation */ /*Ya na pas besoin finalement dcp faut que je supprime ça et les autrs lignes avec*/
   
   /* Dimensions */
   --header-height: 60px;
@@ -1980,5 +1980,41 @@ a:hover {
   
   .full-width-banner {
     height: 200px !important;
+  }
+}
+
+
+
+/* Style pour la section des logos */
+.footer-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.footer-logo-img {
+  height: 60px; /* Logo plus grand */
+  width: auto;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+/* Style spécifique pour le logo SIGAT */
+.footer-logos img[src*="Logo_sigat.svg"] {
+  filter: brightness(0) invert(1); /* Convertit le logo noir en blanc */
+  height: 80px; /* Logo SIGAT encore plus grand */
+}
+
+.footer-logo-img:hover {
+  opacity: 1;
+}
+
+/* Responsive design pour les logos */
+@media (max-width: 768px) {
+  .footer-logos {
+    flex-direction: column;
+    gap: 15px;
   }
 }
