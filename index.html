@@ -68,16 +68,13 @@
     <div id="legend-rennes" class="fixed-legend-content" style="display: none;">
       <h3 class="legend-title">Impact simulé sur Rennes</h3>
       <button id="toggle-rennes-detruit-fixed" class="toggle-btn active" data-layer="rennes_detruit_layer">
-        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#B22222"/></svg>
-        <span class="toggle-label">Zone de destruction totale</span>
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#af0d1d"/></svg>
+        <span class="toggle-label">Destruction totale</span>
       </button>
       <button id="toggle-rennes-partiel-fixed" class="toggle-btn active" data-layer="rennes_partiel_layer">
-        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#FFA500"/></svg>
-        <span class="toggle-label">Zone de dommages</span>
+        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ea504c"/></svg>
+        <span class="toggle-label">Zone incendiée</span>
       </button>
-      <button id="toggle-rennes-radiation-fixed" class="toggle-btn active" data-layer="rennes_radiation_layer">
-        <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#6B8E23"/></svg>
-        <span class="toggle-label">Zone de radiations</span>
       </button>
     </div>
   </div>
@@ -101,6 +98,7 @@
                 <div class="meta-info">
                   <small class="meta-date">PUBLIÉ LE 23 FÉVRIER 2025</small>
                   <small class="byline">Par M2 SIGAT</small>
+                  <small class="byline">Temps de lecture : 7-10min</small>
                 </div>
                 <div class="scroll-indicator">
                   <span>Défiler pour découvrir</span>
@@ -218,8 +216,8 @@
           <p class="timeline-caption">Explosion à Hiroshima</p>
         </div>
         <div class="timeline-image-right">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/The_USS_Arizona_%28BB-39%29_burning_after_the_Japanese_attack_on_Pearl_Harbor_-_NARA_195617_-_Edit.jpg" alt="Champignon atomique Nagasaki">
-          <p class="timeline-caption">Explosion à Nagasaki</p>
+          <img src="https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/pacifique_sud.webp" alt="Champignon atomique Nagasaki">
+          <p class="timeline-caption">Celle la faut la mettre en grand à la suite de la timeline</p>
         </div>
       </div>
     </div>
@@ -286,10 +284,6 @@
                 <div class="stat-number">70%</div>
                 <div class="stat-label">Ville détruite</div>
               </div>
-            </div>
-            <div class="explore-prompt">
-              <p>Explorez la carte pour voir les différents niveaux de destruction</p>
-              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0 0V12m0 0h7" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
           </article>
         </div>
@@ -434,9 +428,8 @@
               Comment visualiser l'ampleur des bombardements atomiques dans un contexte qui nous est familier ? Cette simulation montre l'impact qu'aurait eu "Little Boy" sur la ville de Rennes aujourd'hui.
             </p>
             <ul class="impact-legend">
-              <li><span class="impact-dot destruction"></span> <strong>Zone rouge :</strong> Destruction totale dans un rayon de 1,6 km autour du point d'impact (centre-ville).</li>
-              <li><span class="impact-dot partial"></span> <strong>Zone orange :</strong> Dommages structurels majeurs jusqu'à 3,2 km, affectant la majeure partie de la ville.</li>
-              <li><span class="impact-dot radiation"></span> <strong>Zone verte :</strong> Contamination radioactive étendue, impactant les communes périphériques.</li>
+              <li><span class="impact-dot destruction"></span>  : Destruction totale dans un rayon de 1,6 km autour du point d'impact (centre-ville).</li>
+              <li><span class="impact-dot partial"></span> <strong> : Dommages structurels majeurs jusqu'à 3,2 km, affectant la majeure partie de la ville.</strong></li>
             </ul>
             <p>
               Cette simulation illustre l'échelle des destructions et permet de mieux comprendre l'impact concret qu'ont eu ces armes sur Hiroshima et Nagasaki.
@@ -450,10 +443,6 @@
                 <div class="stat-number">80%</div>
                 <div class="stat-label">Ville impactée</div>
               </div>
-            </div>
-            <div class="explore-prompt">
-              <p>Explorez la carte pour visualiser l'impact simulé sur Rennes</p>
-              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0 0V12m0 0h7" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
           </article>
         </div>
@@ -508,34 +497,41 @@
       </section>
       
       <!-- Section Footer -->
-      <section id="footer">
-        <article class="footer-content">
-          <div class="footer-logo">
-            <h3>Sources</h3>
-          </div>
-          <div class="footer-info">
-            <div class="footer-section">
-              <h3>À propos</h3>
-              <p><a href="https://esigat.wordpress.com/" class="source-link">C© 2025 MASTER SIGAT - Université Rennes 2</a></p>
-              <p>En partenariat avec Ouest-France</p>
-            </div>
-            <div class="footer-section">
-              <h3>Sources</h3>
-              <p><a href="https://www.archives.gov/research/military/ww2/photos" class="source-link">Archives nationales américaines</a></p>
-              <p><a href="https://www.hiroshima-remember.or.jp/" class="source-link">Mémorial de la Paix d'Hiroshima</a></p>
-              <p><a href="https://nagasakipeace.jp/en/" class="source-link">Centre d'études sur la bombe atomique de Nagasaki</a></p>
-            </div>
-            <div class="footer-section">
-              <h3>Technologies</h3>
-              <p>Développé avec <a href="https://maplibre.org/" class="source-link">MapLibre</a> et <a href="https://github.com/russellsamora/scrollama" class="source-link">Scrollama</a></p>
-              <p>Données géospatiales : SIGAT</p>
-            </div>
-          </div>
-          <div class="copyright-info">
-            <p>Tous droits réservés.</p>
-          </div>
-        </article>
-      </section>
+<section id="footer">
+  <article class="footer-content">
+    <div class="footer-logo">
+      <h3>Sources</h3>
+    </div>
+    <div class="footer-info">
+      <div class="footer-section">
+        <h3>À propos</h3>
+        <p><a href="https://esigat.wordpress.com/" target="_blank"  class="source-link">© 2025 MASTER SIGAT - Université Rennes 2</a></p>
+        <p><a href="https://www.ouest-france.fr/" target="_blank" class="source-link">En partenariat avec Ouest-France</a></p>
+      </div>
+      <div class="footer-section">
+        <h3>Données géospatiales</h3>
+        <p>Données géospatiales - © SIGAT</p>
+        <p>Fond de carte - © <a href="https://carto.com/" target="_blank" class="source-link">CARTO</a> et © <a href="https://www.openstreetmap.org/copyright" target="_blank" class="source-link">OpenStreetMap contributors</a></p>
+      </div>
+      <div class="footer-section">
+        <h3>Bibliothèque</h3>
+        <p><a href="https://carto.com/legal/" target="_blank" class="source-link">CARTO Vector Tiles</a></p>
+        <p>Développé avec <a href="https://maplibre.org/" target="_blank" class="source-link">MapLibre</a> et <a href="https://github.com/russellsamora/scrollama" class="source-link">Scrollama</a></p>
+      </div>
+    </div>
+    <div class="copyright-info">
+      <p>Tous droits réservés.</p>
+      <div class="footer-logos">
+        <a href="https://esigat.wordpress.com/" target="_blank">
+          <img src="https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Logo_sigat.svg" alt="Logo SIGAT" class="footer-logo-img">
+        </a>
+        <a href="https://www.ouest-france.fr/" target="_blank">
+          <img src="https://raw.githubusercontent.com/SIGATNguyen/Web_carto/refs/heads/main/Ouest-France_logo.svg" alt="Logo Ouest-France" class="footer-logo-img">
+        </a>
+      </div>
+    </div>
+  </article>
+</section>
       
     </div>
   </main>
